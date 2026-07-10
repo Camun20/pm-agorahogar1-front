@@ -75,10 +75,10 @@ export const LoginPage: React.FC = () => {
                   <Mail className="w-5 h-5" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ejemplo@lobbyapp.com"
+                  placeholder="Usuario o correo"
                   className="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-100 rounded-xl placeholder-slate-600 outline-none transition"
                   disabled={isLoading}
                 />

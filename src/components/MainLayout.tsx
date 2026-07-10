@@ -198,6 +198,25 @@ export const MainLayout: React.FC = () => {
             );
           })}
         </nav>
+
+        {/* Desktop Logout Button */}
+        <div className="p-3 border-t border-slate-800">
+          <button
+            onClick={handleSignOut}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all group relative cursor-pointer ${
+              isSidebarCollapsed ? 'justify-center' : ''
+            }`}
+          >
+            <LogOut className="w-5 h-5 shrink-0" />
+            {!isSidebarCollapsed && <span>Cerrar Sesión</span>}
+            
+            {isSidebarCollapsed && (
+              <div className="absolute left-full ml-2 px-2 py-1 bg-slate-950 border border-slate-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                Cerrar Sesión
+              </div>
+            )}
+          </button>
+        </div>
       </aside>
 
       {/* -------------------- SIDEBAR (MOBILE OVERLAY) -------------------- */}
@@ -236,6 +255,20 @@ export const MainLayout: React.FC = () => {
                 );
               })}
             </nav>
+
+            {/* Mobile Logout Button */}
+            <div className="p-3 border-t border-slate-800">
+              <button
+                onClick={() => {
+                  setIsMobileSidebarOpen(false);
+                  handleSignOut();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all cursor-pointer"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Cerrar Sesión</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
