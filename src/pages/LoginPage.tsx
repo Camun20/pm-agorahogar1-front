@@ -19,7 +19,7 @@ export const LoginPage: React.FC = () => {
     setValidationError(null);
 
     if (!email) {
-      setValidationError('Por favor ingresa tu correo electrónico.');
+      setValidationError('Por favor ingresa tu usuario o correo electrónico.');
       return;
     }
     if (!password) {
@@ -68,7 +68,7 @@ export const LoginPage: React.FC = () => {
             {/* Email Field */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                Correo Electrónico
+                Usuario o Correo Electrónico
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
