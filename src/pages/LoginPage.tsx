@@ -139,28 +139,39 @@ export const LoginPage: React.FC = () => {
           <div className="mt-8 pt-6 border-t border-slate-800/80 space-y-3">
             <h3 className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 justify-center">
               <Info className="w-4 h-4 text-indigo-400" />
-              Accesos Rápidos de Simulación (Clave: 123456)
+              Accesos Rápidos de Simulación (Clave: 123456 / admin)
             </h3>
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div className="flex flex-wrap gap-2 justify-center col-span-2">
               <button
+                type="button"
+                onClick={() => { setEmail('admin'); setPassword('admin'); }}
+                className="text-xxs bg-indigo-950/40 border border-indigo-500/30 hover:border-indigo-500/60 text-indigo-200 font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
+              >
+                SuperAdmin (admin/admin)
+              </button>
+              <button
+                type="button"
                 onClick={() => handleQuickLogin('admin@lobbyapp.com')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-indigo-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
                 Admin Res.
               </button>
               <button
+                type="button"
                 onClick={() => handleQuickLogin('residente@lobbyapp.com')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-emerald-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
                 Residente
               </button>
               <button
+                type="button"
                 onClick={() => handleQuickLogin('seguridad@lobbyapp.com')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-amber-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
                 Guarda
               </button>
               <button
+                type="button"
                 onClick={() => handleQuickLogin('contabilidad@lobbyapp.com')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-sky-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >

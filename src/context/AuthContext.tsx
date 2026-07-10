@@ -28,6 +28,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Usuarios de prueba para fácil testeo de roles en desarrollo
 const MOCK_USERS: Record<string, User> = {
+  'admin': {
+    username: 'superadmin_usr',
+    email: 'admin',
+    name: 'Super Administrador (LobbyApp)',
+    role: 'SuperAdmin',
+  },
   'superadmin@lobbyapp.com': {
     username: 'superadmin_usr',
     email: 'superadmin@lobbyapp.com',
@@ -120,9 +126,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
        */
 
       // Para propósitos de demostración y testing, validamos con MOCK_USERS
-      const mockUser = MOCK_USERS[email.toLowerCase().trim()];
+      const inputEmail = email.toLowerCase().trim();
+      const isSuperAdminQuick = inputEmail === 'admin' && password === 'admin';
+      const mockUser = isSuperAdminQuick ? MOCK_USERS['admin'] : MOCK_USERS[inputEmail];
       
-      if (mockUser && password === '123456') {
+      const isValidPassword = isSuperAdminQuick ? true : (mockUser && password === '123456');
+
+      if (mockUser && isValidPassword) {
         // Generamos un token JWT simulado
         const mockToken = `mock-jwt-token-header.${btoa(JSON.stringify({ ...mockUser, 'cognito:groups': [mockUser.role] }))}.signature`;
         
@@ -133,7 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('lobbyapp_user', JSON.stringify(mockUser));
         localStorage.setItem('lobbyapp_token', mockToken);
       } else {
-        throw new Error('Credenciales inválidas. (Tip: Usa correos mock como admin@lobbyapp.com y contraseña "123456")');
+        throw new Error('Credenciales inválidas. (Tip: Usa el usuario "admin" y contraseña "admin" para SuperAdmin)');
       }
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión con Cognito');
