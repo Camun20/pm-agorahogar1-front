@@ -11,6 +11,7 @@ export interface User {
   role: UserRole;
   password?: string;
   location?: string;
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -38,6 +39,7 @@ const DEFAULT_USERS: User[] = [
     name: 'Super Administrador (LobbyApp)',
     role: 'SuperAdmin',
     password: 'admin',
+    phone: '300 123 4567',
   },
   {
     username: 'superadmin_usr',
@@ -45,6 +47,7 @@ const DEFAULT_USERS: User[] = [
     name: 'Carlos Mendoza',
     role: 'SuperAdmin',
     password: '123456',
+    phone: '310 987 6543',
   },
   {
     username: 'resadmin_usr',
@@ -53,6 +56,7 @@ const DEFAULT_USERS: User[] = [
     role: 'ResidentialAdmin',
     password: '123456',
     location: 'Portería Principal - Admin Office',
+    phone: '315 222 3344',
   },
   {
     username: 'security_usr',
@@ -60,6 +64,7 @@ const DEFAULT_USERS: User[] = [
     name: 'Guarda Torres',
     role: 'Security',
     password: '123456',
+    phone: '320 555 6677',
   },
   {
     username: 'accounting_usr',
@@ -67,6 +72,7 @@ const DEFAULT_USERS: User[] = [
     name: 'Mauricio Restrepo',
     role: 'Accounting',
     password: '123456',
+    phone: '318 444 8899',
   },
   {
     username: 'resident_usr',
@@ -75,6 +81,7 @@ const DEFAULT_USERS: User[] = [
     role: 'Resident',
     password: '123456',
     location: 'Torre 3 - Apto 402',
+    phone: '312 999 0011',
   },
 ];
 

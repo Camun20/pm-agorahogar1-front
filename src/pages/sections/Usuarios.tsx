@@ -26,6 +26,7 @@ export const Usuarios: React.FC = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('Resident');
   const [location, setLocation] = useState('');
+  const [phone, setPhone] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
@@ -52,6 +53,7 @@ export const Usuarios: React.FC = () => {
     setEmail('');
     setName('');
     setPassword('');
+    setPhone('');
     // If ResidentialAdmin, default to Resident (which is valid).
     setRole('Resident');
     setLocation('');
@@ -66,6 +68,7 @@ export const Usuarios: React.FC = () => {
     setEmail(user.email);
     setName(user.name);
     setPassword(user.password || '');
+    setPhone(user.phone || '');
     setRole(user.role);
     setLocation(user.location || '');
     setFormError(null);
@@ -96,6 +99,7 @@ export const Usuarios: React.FC = () => {
       name: name.trim(),
       role,
       password: password,
+      phone: phone.trim(),
       // Location is ONLY saved for Resident role
       ...(role === 'Resident' && location.trim() && { location: location.trim() })
     };
@@ -233,6 +237,8 @@ export const Usuarios: React.FC = () => {
               <tr className="border-b border-slate-800 bg-slate-900/50 text-xs text-slate-400 font-semibold uppercase tracking-wider">
                 <th className="px-5 py-3.5">Nombre Completo</th>
                 <th className="px-5 py-3.5">Usuario / Login</th>
+                <th className="px-5 py-3.5">Correo</th>
+                <th className="px-5 py-3.5">Celular</th>
                 <th className="px-5 py-3.5">Rol de Acceso</th>
                 <th className="px-5 py-3.5">Ubicación / Detalles</th>
                 <th className="px-5 py-3.5 text-right">Acciones</th>
@@ -244,6 +250,8 @@ export const Usuarios: React.FC = () => {
                   <tr key={u.username} className="hover:bg-slate-900/30 transition-colors">
                     <td className="px-5 py-4 font-medium text-slate-200">{u.name}</td>
                     <td className="px-5 py-4 font-mono text-indigo-400 text-xs">{u.username}</td>
+                    <td className="px-5 py-4 text-slate-300 text-xs">{u.email}</td>
+                    <td className="px-5 py-4 text-slate-300 text-xs">{u.phone || '—'}</td>
                     <td className="px-5 py-4">
                       <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRoleBadgeColor(u.role)}`}>
                         {getRoleLabel(u.role)}
@@ -286,7 +294,7 @@ export const Usuarios: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-5 py-12 text-center text-slate-500">
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-500">
                     <Info className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                     No se encontraron usuarios con los criterios de búsqueda actuales.
                   </td>
@@ -360,6 +368,35 @@ export const Usuarios: React.FC = () => {
                   placeholder="ej: Carlos Mendoza"
                   className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
                   required
+                />
+              </div>
+
+              {/* Field: Email */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  Correo Electrónico *
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ej: correo@ejemplo.com"
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
+                  required
+                />
+              </div>
+
+              {/* Field: Phone */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  Celular
+                </label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="ej: 312 456 7890"
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
                 />
               </div>
 

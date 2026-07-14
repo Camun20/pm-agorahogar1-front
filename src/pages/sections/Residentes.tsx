@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Users, Search, Building, Mail, Info } from 'lucide-react';
+import { Users, Search, Building, Mail, Info, Phone } from 'lucide-react';
 
 export const Residentes: React.FC = () => {
   const { users } = useAuth();
@@ -103,6 +103,7 @@ export const Residentes: React.FC = () => {
                 <th className="px-5 py-3.5">Usuario</th>
                 <th className="px-5 py-3.5">Ubicación</th>
                 <th className="px-5 py-3.5">Correo Electrónico</th>
+                <th className="px-5 py-3.5">Celular</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50 text-sm">
@@ -121,17 +122,27 @@ export const Residentes: React.FC = () => {
                         <span className="text-slate-600">—</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-slate-400">
+                    <td className="px-5 py-4 text-slate-450">
                       <span className="flex items-center gap-1.5">
                         <Mail className="w-4 h-4 text-slate-600" />
                         {r.email}
                       </span>
                     </td>
+                    <td className="px-5 py-4 text-slate-400">
+                      {r.phone ? (
+                        <span className="flex items-center gap-1.5">
+                          <Phone className="w-3.5 h-3.5 text-slate-600" />
+                          {r.phone}
+                        </span>
+                      ) : (
+                        <span className="text-slate-600">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-5 py-12 text-center text-slate-500">
+                  <td colSpan={5} className="px-5 py-12 text-center text-slate-500">
                     <Info className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                     No se encontraron residentes en la base de datos.
                   </td>
