@@ -49,10 +49,10 @@ export const SectionPlaceholder: React.FC<SectionPlaceholderProps> = ({
               <span className="text-slate-400">Rol:</span>
               <span className="text-slate-200 font-medium">{user?.role}</span>
             </div>
-            {user?.apartment && (
+            {user?.location && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Apartamento:</span>
-                <span className="text-slate-200 font-medium">Torre {user.tower} - Apto {user.apartment}</span>
+                <span className="text-slate-400">Ubicación:</span>
+                <span className="text-slate-200 font-medium">{user.location}</span>
               </div>
             )}
           </div>

@@ -29,9 +29,9 @@ export const Dashboard: React.FC = () => {
             Te damos la bienvenida al panel de control de tu copropiedad. Aquí puedes gestionar servicios,
             comunicarte con administración y revisar el estado general del conjunto.
           </p>
-          {user?.apartment && (
+          {user?.location && (
             <p className="mt-3 text-xs text-indigo-300 font-mono font-medium">
-              Ubicación: Torre {user.tower} — Apto {user.apartment} | Rol: {user.role}
+              Ubicación: {user.location} | Rol: {user.role}
             </p>
           )}
         </div>

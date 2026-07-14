@@ -10,8 +10,7 @@ export interface User {
   name: string;
   role: UserRole;
   password?: string;
-  apartment?: string;
-  tower?: string;
+  location?: string;
 }
 
 interface AuthContextType {
@@ -53,8 +52,7 @@ const DEFAULT_USERS: User[] = [
     name: 'Ana María Gómez',
     role: 'ResidentialAdmin',
     password: '123456',
-    apartment: 'Admin Office',
-    tower: 'Portería Principal',
+    location: 'Portería Principal - Admin Office',
   },
   {
     username: 'security_usr',
@@ -62,7 +60,6 @@ const DEFAULT_USERS: User[] = [
     name: 'Guarda Torres',
     role: 'Security',
     password: '123456',
-    tower: 'Torre de Control A',
   },
   {
     username: 'accounting_usr',
@@ -77,8 +74,7 @@ const DEFAULT_USERS: User[] = [
     name: 'Diana Carolina Ruiz',
     role: 'Resident',
     password: '123456',
-    apartment: '402',
-    tower: 'Torre 3',
+    location: 'Torre 3 - Apto 402',
   },
 ];
 

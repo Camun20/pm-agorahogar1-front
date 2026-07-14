@@ -8,6 +8,9 @@ import {
 export const Usuarios: React.FC = () => {
   const { users, createUser, updateUser, deleteUser, user: currentUser } = useAuth();
   
+  // Checks
+  const isResidentialAdmin = currentUser?.role === 'ResidentialAdmin';
+
   // States
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('All');
@@ -22,13 +25,17 @@ export const Usuarios: React.FC = () => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('Resident');
-  const [apartment, setApartment] = useState('');
-  const [tower, setTower] = useState('');
+  const [location, setLocation] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
   // Filtered Users
   const filteredUsers = users.filter(user => {
+    // If ResidentialAdmin, ONLY display Security and Resident roles
+    if (isResidentialAdmin && user.role !== 'Security' && user.role !== 'Resident') {
+      return false;
+    }
+
     const matchesSearch = 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,9 +52,9 @@ export const Usuarios: React.FC = () => {
     setEmail('');
     setName('');
     setPassword('');
+    // If ResidentialAdmin, default to Resident (which is valid).
     setRole('Resident');
-    setApartment('');
-    setTower('');
+    setLocation('');
     setFormError(null);
     setFormSuccess(null);
     setIsModalOpen(true);
@@ -60,8 +67,7 @@ export const Usuarios: React.FC = () => {
     setName(user.name);
     setPassword(user.password || '');
     setRole(user.role);
-    setApartment(user.apartment || '');
-    setTower(user.tower || '');
+    setLocation(user.location || '');
     setFormError(null);
     setFormSuccess(null);
     setIsModalOpen(true);
@@ -78,14 +84,20 @@ export const Usuarios: React.FC = () => {
       return;
     }
 
+    // Double check roles permissions for ResidentialAdmin
+    if (isResidentialAdmin && role !== 'Security' && role !== 'Resident') {
+      setFormError('No tienes permisos para asignar este rol.');
+      return;
+    }
+
     const userData: User = {
       username: username.trim(),
       email: email.trim() || `${username.trim()}@lobbyapp.com`, // Auto-generated email fallback
       name: name.trim(),
       role,
       password: password,
-      ...(apartment.trim() && { apartment: apartment.trim() }),
-      ...(tower.trim() && { tower: tower.trim() })
+      // Location is ONLY saved for Resident role
+      ...(role === 'Resident' && location.trim() && { location: location.trim() })
     };
 
     try {
@@ -142,6 +154,11 @@ export const Usuarios: React.FC = () => {
     }
   };
 
+  // Filters tags list depending on who is logged in
+  const availableFilters = isResidentialAdmin 
+    ? ['All', 'Security', 'Resident'] 
+    : ['All', 'SuperAdmin', 'ResidentialAdmin', 'Security', 'Accounting', 'Resident'];
+
   return (
     <div className="space-y-6">
       {/* Top Banner */}
@@ -157,7 +174,9 @@ export const Usuarios: React.FC = () => {
               Control de Usuarios y Credenciales
             </h1>
             <p className="mt-1.5 text-slate-400 text-sm max-w-xl">
-              Sección administrativa para crear, modificar y dar de baja usuarios del sistema de control LobbyApp.
+              {isResidentialAdmin 
+                ? 'Sección administrativa para gestionar los residentes y guardas de seguridad del conjunto.' 
+                : 'Sección administrativa para crear, modificar y dar de baja usuarios del sistema de control LobbyApp.'}
             </p>
           </div>
           <button 
@@ -191,7 +210,7 @@ export const Usuarios: React.FC = () => {
 
           {/* Role Filter badges */}
           <div className="flex flex-wrap gap-1.5">
-            {['All', 'SuperAdmin', 'ResidentialAdmin', 'Security', 'Accounting', 'Resident'].map((roleKey) => (
+            {availableFilters.map((roleKey) => (
               <button
                 key={roleKey}
                 onClick={() => setRoleFilter(roleKey)}
@@ -231,10 +250,10 @@ export const Usuarios: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-slate-400">
-                      {u.tower || u.apartment ? (
+                      {u.location ? (
                         <span className="flex items-center gap-1">
                           <Building className="w-3.5 h-3.5 text-slate-500" />
-                          Torre {u.tower || '—'} / Apto {u.apartment || '—'}
+                          {u.location}
                         </span>
                       ) : (
                         <span className="text-slate-600">—</span>
@@ -375,41 +394,36 @@ export const Usuarios: React.FC = () => {
                   onChange={(e) => setRole(e.target.value as UserRole)}
                   className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition cursor-pointer"
                 >
-                  <option value="Resident">Residente</option>
-                  <option value="Security">Seguridad / Guarda</option>
-                  <option value="Accounting">Contabilidad / Contador</option>
-                  <option value="ResidentialAdmin">Administrador Residencial</option>
-                  <option value="SuperAdmin">Super Administrador</option>
+                  {isResidentialAdmin ? (
+                    <>
+                      <option value="Resident">Residente</option>
+                      <option value="Security">Seguridad / Guarda</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Resident">Residente</option>
+                      <option value="Security">Seguridad / Guarda</option>
+                      <option value="Accounting">Contabilidad / Contador</option>
+                      <option value="ResidentialAdmin">Administrador Residencial</option>
+                      <option value="SuperAdmin">Super Administrador</option>
+                    </>
+                  )}
                 </select>
               </div>
 
-              {/* Conditional Fields: Tower and Apartment (for Residents/Security/ResidentialAdmin) */}
-              {(role === 'Resident' || role === 'ResidentialAdmin' || role === 'Security') && (
-                <div className="grid grid-cols-2 gap-4 pt-1.5">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                      Torre / Bloque
-                    </label>
-                    <input
-                      type="text"
-                      value={tower}
-                      onChange={(e) => setTower(e.target.value)}
-                      placeholder="ej: 3"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                      Apartamento
-                    </label>
-                    <input
-                      type="text"
-                      value={apartment}
-                      onChange={(e) => setApartment(e.target.value)}
-                      placeholder="ej: 402"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
-                    />
-                  </div>
+              {/* Conditional Field: Ubicación (ONLY for Resident role) */}
+              {role === 'Resident' && (
+                <div className="space-y-1.5 pt-1.5">
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                    Ubicación (ej: Torre 3 - Apto 402)
+                  </label>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="ej: Torre 3 - Apto 402"
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
+                  />
                 </div>
               )}
 

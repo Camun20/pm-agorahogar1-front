@@ -4,7 +4,7 @@ import { useAuth, type UserRole } from '../context/AuthContext';
 import {
   Menu, X, Bell, MessageSquare, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight,
   ClipboardList, Users, Truck, DollarSign, FileSpreadsheet, HelpCircle,
-  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Send
+  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Send, Key
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -15,7 +15,7 @@ interface SidebarItem {
 }
 
 export const MainLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -25,6 +25,12 @@ export const MainLayout: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  
+  // Estados para el modal "Ver Perfil"
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
   
   // Mensajes de prueba del chat rápido
   const [chatMessages, setChatMessages] = useState([
@@ -117,7 +123,7 @@ export const MainLayout: React.FC = () => {
       name: 'Gestión Usuarios',
       path: '/usuarios',
       icon: <Users className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin'],
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin'],
     },
   ];
 
@@ -464,19 +470,24 @@ export const MainLayout: React.FC = () => {
                       <span className="text-slate-500">Rol Cognito:</span>
                       <span className="text-indigo-400 font-medium font-mono">{user?.role}</span>
                     </div>
-                    {user?.apartment && (
-                      <>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Torre:</span>
-                          <span className="text-slate-300 font-medium">{user.tower}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Apartamento:</span>
-                          <span className="text-slate-300 font-medium">{user.apartment}</span>
-                        </div>
-                      </>
+                    {user?.location && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Ubicación:</span>
+                        <span className="text-slate-300 font-medium truncate max-w-[120px]">{user.location}</span>
+                      </div>
                     )}
                   </div>
+
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      setIsProfileModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 text-xs font-semibold rounded-xl transition cursor-pointer mb-2"
+                  >
+                    <UserIcon className="w-4 h-4 text-indigo-400" />
+                    Ver Perfil
+                  </button>
 
                   <button
                     onClick={handleSignOut}
@@ -499,6 +510,141 @@ export const MainLayout: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* -------------------- PROFILE MODAL -------------------- */}
+      {isProfileModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl animate-scale-in">
+            
+            {/* Modal Header */}
+            <div className="px-6 py-4 bg-slate-900 border-b border-slate-800/80 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <UserIcon className="w-5 h-5 text-indigo-400" />
+                Mi Perfil
+              </h2>
+              <button 
+                onClick={() => {
+                  setIsProfileModalOpen(false);
+                  setNewPassword('');
+                  setProfileError(null);
+                  setProfileSuccess(null);
+                }}
+                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              
+              {/* User Info Details */}
+              <div className="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 space-y-2.5 text-sm">
+                <div className="flex justify-between border-b border-slate-800 pb-2">
+                  <span className="text-slate-500">Nombre:</span>
+                  <span className="text-slate-200 font-medium">{user?.name}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-800 pb-2">
+                  <span className="text-slate-500">Usuario:</span>
+                  <span className="text-indigo-400 font-mono font-medium">{user?.username}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-800 pb-2">
+                  <span className="text-slate-500">Correo:</span>
+                  <span className="text-slate-200 font-medium truncate max-w-[180px]">{user?.email}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-800 pb-2">
+                  <span className="text-slate-500">Rol:</span>
+                  <span className="text-indigo-400 font-medium">{user?.role}</span>
+                </div>
+                {user?.location && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Ubicación:</span>
+                    <span className="text-slate-200 font-medium">{user.location}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Password Change Section */}
+              <form 
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setProfileError(null);
+                  setProfileSuccess(null);
+                  if (!newPassword.trim()) {
+                    setProfileError('La contraseña no puede estar vacía.');
+                    return;
+                  }
+                  try {
+                    if (user) {
+                      await updateUser(user.username, { password: newPassword });
+                      setProfileSuccess('Contraseña actualizada con éxito.');
+                      setNewPassword('');
+                      setTimeout(() => {
+                        setIsProfileModalOpen(false);
+                        setProfileSuccess(null);
+                      }, 1200);
+                    }
+                  } catch (err: any) {
+                    setProfileError(err.message || 'Error al actualizar contraseña.');
+                  }
+                }}
+                className="space-y-3 pt-2"
+              >
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  Cambiar Contraseña
+                </h3>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Key className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Nueva contraseña"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
+                    required
+                  />
+                </div>
+
+                {/* Alerts */}
+                {profileError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs">
+                    {profileError}
+                  </div>
+                )}
+                {profileSuccess && (
+                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs">
+                    {profileSuccess}
+                  </div>
+                )}
+
+                <div className="pt-2 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileModalOpen(false);
+                      setNewPassword('');
+                      setProfileError(null);
+                      setProfileSuccess(null);
+                    }}
+                    className="px-4 py-2 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white font-semibold text-xs rounded-xl transition cursor-pointer"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs rounded-xl shadow-lg transition cursor-pointer"
+                  >
+                    Guardar
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
