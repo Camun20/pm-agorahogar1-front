@@ -113,6 +113,12 @@ export const MainLayout: React.FC = () => {
       icon: <Archive className="w-5 h-5" />,
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
     },
+    {
+      name: 'Gestión Usuarios',
+      path: '/usuarios',
+      icon: <Users className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin'],
+    },
   ];
 
   // Filtrar items según el rol del usuario autenticado

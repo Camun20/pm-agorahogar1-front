@@ -9,6 +9,7 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  password?: string;
   apartment?: string;
   tower?: string;
 }
@@ -20,56 +21,66 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
+  users: User[];
+  createUser: (newUser: User) => Promise<void>;
+  updateUser: (username: string, updatedFields: Partial<User>) => Promise<void>;
+  deleteUser: (username: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Usuarios de prueba para fácil testeo de roles en desarrollo
-const MOCK_USERS: Record<string, User> = {
-  'admin': {
-    username: 'superadmin_usr',
-    email: 'admin',
+// Usuarios iniciales de prueba para fácil testeo de roles en desarrollo
+const DEFAULT_USERS: User[] = [
+  {
+    username: 'admin',
+    email: 'admin@lobbyapp.com',
     name: 'Super Administrador (LobbyApp)',
     role: 'SuperAdmin',
+    password: 'admin',
   },
-  'superadmin@lobbyapp.com': {
+  {
     username: 'superadmin_usr',
     email: 'superadmin@lobbyapp.com',
     name: 'Carlos Mendoza',
     role: 'SuperAdmin',
+    password: '123456',
   },
-  'admin@lobbyapp.com': {
+  {
     username: 'resadmin_usr',
     email: 'admin@lobbyapp.com',
     name: 'Ana María Gómez',
     role: 'ResidentialAdmin',
+    password: '123456',
     apartment: 'Admin Office',
     tower: 'Portería Principal',
   },
-  'seguridad@lobbyapp.com': {
+  {
     username: 'security_usr',
     email: 'seguridad@lobbyapp.com',
     name: 'Guarda Torres',
     role: 'Security',
+    password: '123456',
     tower: 'Torre de Control A',
   },
-  'contabilidad@lobbyapp.com': {
+  {
     username: 'accounting_usr',
     email: 'contabilidad@lobbyapp.com',
     name: 'Mauricio Restrepo',
     role: 'Accounting',
+    password: '123456',
   },
-  'residente@lobbyapp.com': {
+  {
     username: 'resident_usr',
     email: 'residente@lobbyapp.com',
     name: 'Diana Carolina Ruiz',
     role: 'Resident',
+    password: '123456',
     apartment: '402',
     tower: 'Torre 3',
   },
-};
+];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -77,11 +88,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [role, setRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     // Verificar que las variables de AWS Cognito están inicializadas
     if (import.meta.env.DEV) {
       console.log(`[Cognito Auth] Inicializado en región: ${awsConfig.cognito.region}`);
+    }
+
+    // Inicializar o cargar usuarios desde localStorage
+    const savedUsersList = localStorage.getItem('lobbyapp_users');
+    if (savedUsersList) {
+      try {
+        setUsers(JSON.parse(savedUsersList));
+      } catch (e) {
+        localStorage.setItem('lobbyapp_users', JSON.stringify(DEFAULT_USERS));
+        setUsers(DEFAULT_USERS);
+      }
+    } else {
+      localStorage.setItem('lobbyapp_users', JSON.stringify(DEFAULT_USERS));
+      setUsers(DEFAULT_USERS);
     }
 
     // Al cargar el componente, verificar sesión previa en localStorage
@@ -102,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -110,37 +136,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulación de delay de red (AWS Cognito API Call)
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
-      /**
-       * NOTA DE INTEGRACIÓN CON AWS COGNITO:
-       * 
-       * En un entorno real integrado con AWS Amplify, el flujo sería:
-       * import { signIn } from 'aws-amplify/auth';
-       * const { isSignedIn, nextStep } = await signIn({ username: email, password });
-       * 
-       * Y para extraer el rol del token JWT:
-       * import { fetchAuthSession } from 'aws-amplify/auth';
-       * const session = await fetchAuthSession();
-       * const idToken = session.tokens?.idToken;
-       * const groups = idToken?.payload['cognito:groups'] as string[];
-       * const userRole = groups && groups.length > 0 ? (groups[0] as UserRole) : 'Resident';
-       */
+      const inputUsername = username.toLowerCase().trim();
 
-      // Para propósitos de demostración y testing, validamos con MOCK_USERS
-      const inputEmail = email.toLowerCase().trim();
-      const isSuperAdminQuick = inputEmail === 'admin' && password === 'admin';
-      const mockUser = isSuperAdminQuick ? MOCK_USERS['admin'] : MOCK_USERS[inputEmail];
-      
-      const isValidPassword = isSuperAdminQuick ? true : (mockUser && password === '123456');
+      // Cargar lista actualizada de localStorage por si acaso
+      const currentUsersList = JSON.parse(localStorage.getItem('lobbyapp_users') || JSON.stringify(DEFAULT_USERS)) as User[];
 
-      if (mockUser && isValidPassword) {
+      // Buscar usuario por username (o email por compatibilidad si es necesario)
+      const foundUser = currentUsersList.find(
+        (u) =>
+          u.username.toLowerCase() === inputUsername ||
+          u.email.toLowerCase() === inputUsername
+      );
+
+      const isValidPassword = foundUser && (foundUser.password === password);
+
+      if (foundUser && isValidPassword) {
         // Generamos un token JWT simulado
-        const mockToken = `mock-jwt-token-header.${btoa(JSON.stringify({ ...mockUser, 'cognito:groups': [mockUser.role] }))}.signature`;
+        const mockToken = `mock-jwt-token-header.${btoa(JSON.stringify({ ...foundUser, 'cognito:groups': [foundUser.role] }))}.signature`;
         
-        setUser(mockUser);
+        setUser(foundUser);
         setToken(mockToken);
-        setRole(mockUser.role);
+        setRole(foundUser.role);
         
-        localStorage.setItem('lobbyapp_user', JSON.stringify(mockUser));
+        localStorage.setItem('lobbyapp_user', JSON.stringify(foundUser));
         localStorage.setItem('lobbyapp_token', mockToken);
       } else {
         throw new Error('Credenciales inválidas. (Tip: Usa el usuario "admin" y contraseña "admin" para SuperAdmin)');
@@ -159,13 +177,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRole(null);
     localStorage.removeItem('lobbyapp_user');
     localStorage.removeItem('lobbyapp_token');
-    
-    /**
-     * NOTA DE INTEGRACIÓN CON AWS COGNITO:
-     * En producción con Amplify:
-     * import { signOut } from 'aws-amplify/auth';
-     * await signOut();
-     */
+  };
+
+  // --- MÉTODOS DE ADMINISTRACIÓN DE USUARIOS (CRUD) ---
+
+  const createUser = async (newUser: User) => {
+    // Validar unicidad de username
+    const exists = users.some(u => u.username.toLowerCase() === newUser.username.toLowerCase());
+    if (exists) {
+      throw new Error(`El nombre de usuario "${newUser.username}" ya está registrado.`);
+    }
+
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    localStorage.setItem('lobbyapp_users', JSON.stringify(updatedUsers));
+  };
+
+  const updateUser = async (username: string, updatedFields: Partial<User>) => {
+    const updatedUsers = users.map(u => {
+      if (u.username.toLowerCase() === username.toLowerCase()) {
+        return { ...u, ...updatedFields };
+      }
+      return u;
+    });
+    setUsers(updatedUsers);
+    localStorage.setItem('lobbyapp_users', JSON.stringify(updatedUsers));
+
+    // Si el usuario editado es el actual, actualizamos su sesión activa
+    if (user && user.username.toLowerCase() === username.toLowerCase()) {
+      const updatedCurrentUser = { ...user, ...updatedFields };
+      setUser(updatedCurrentUser);
+      localStorage.setItem('lobbyapp_user', JSON.stringify(updatedCurrentUser));
+    }
+  };
+
+  const deleteUser = async (username: string) => {
+    const updatedUsers = users.filter(u => u.username.toLowerCase() !== username.toLowerCase());
+    setUsers(updatedUsers);
+    localStorage.setItem('lobbyapp_users', JSON.stringify(updatedUsers));
+
+    // Si el usuario eliminado es el actual, cerramos sesión
+    if (user && user.username.toLowerCase() === username.toLowerCase()) {
+      logout();
+    }
   };
 
   return (
@@ -179,6 +233,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         login,
         logout,
+        users,
+        createUser,
+        updateUser,
+        deleteUser,
       }}
     >
       {children}

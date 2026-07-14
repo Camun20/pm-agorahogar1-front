@@ -22,7 +22,8 @@ import {
   RecibosPublicos,
   Parqueadero,
   Reservas,
-  Mudanzas
+  Mudanzas,
+  Usuarios
 } from '../pages/sections';
 
 export const AppRoutes: React.FC = () => {
@@ -170,6 +171,16 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident']}>
               <Mudanzas />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 14. Usuarios */}
+        <Route
+          path="usuarios"
+          element={
+            <ProtectedRoute allowedRoles={['SuperAdmin']}>
+              <Usuarios />
             </ProtectedRoute>
           }
         />

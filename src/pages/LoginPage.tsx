@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Building2, KeyRound, Mail, AlertTriangle, Info } from 'lucide-react';
+import { Building2, KeyRound, User as UserIcon, AlertTriangle, Info } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login, error: authError, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -18,8 +18,8 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setValidationError(null);
 
-    if (!email) {
-      setValidationError('Por favor ingresa tu usuario o correo electrónico.');
+    if (!username) {
+      setValidationError('Por favor ingresa tu usuario.');
       return;
     }
     if (!password) {
@@ -28,15 +28,15 @@ export const LoginPage: React.FC = () => {
     }
 
     try {
-      await login(email, password);
+      await login(username, password);
       navigate(from, { replace: true });
     } catch (err) {
       // El error ya lo maneja el contexto global
     }
   };
 
-  const handleQuickLogin = (mockEmail: string) => {
-    setEmail(mockEmail);
+  const handleQuickLogin = (mockUsername: string) => {
+    setUsername(mockUsername);
     setPassword('123456');
   };
 
@@ -65,20 +65,20 @@ export const LoginPage: React.FC = () => {
           <h2 className="text-xl font-bold text-white mb-6 text-center">Inicia sesión en tu cuenta</h2>
           
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
+            {/* Username Field */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                Usuario o Correo Electrónico
+                Usuario
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                  <Mail className="w-5 h-5" />
+                  <UserIcon className="w-5 h-5" />
                 </div>
                 <input
                   type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Usuario o correo"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Introduce tu usuario"
                   className="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-100 rounded-xl placeholder-slate-600 outline-none transition"
                   disabled={isLoading}
                 />
@@ -139,43 +139,43 @@ export const LoginPage: React.FC = () => {
           <div className="mt-8 pt-6 border-t border-slate-800/80 space-y-3">
             <h3 className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 justify-center">
               <Info className="w-4 h-4 text-indigo-400" />
-              Accesos Rápidos de Simulación (Clave: 123456 / admin)
+              Accesos Rápidos de Simulación (Claves en paréntesis)
             </h3>
             <div className="flex flex-wrap gap-2 justify-center col-span-2">
               <button
                 type="button"
-                onClick={() => { setEmail('admin'); setPassword('admin'); }}
+                onClick={() => { setUsername('admin'); setPassword('admin'); }}
                 className="text-xxs bg-indigo-950/40 border border-indigo-500/30 hover:border-indigo-500/60 text-indigo-200 font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
                 SuperAdmin (admin/admin)
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickLogin('admin@lobbyapp.com')}
+                onClick={() => handleQuickLogin('resadmin_usr')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-indigo-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
-                Admin Res.
+                Admin Res. (123456)
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickLogin('residente@lobbyapp.com')}
+                onClick={() => handleQuickLogin('resident_usr')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-emerald-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
-                Residente
+                Residente (123456)
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickLogin('seguridad@lobbyapp.com')}
+                onClick={() => handleQuickLogin('security_usr')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-amber-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
-                Guarda
+                Guarda (123456)
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickLogin('contabilidad@lobbyapp.com')}
+                onClick={() => handleQuickLogin('accounting_usr')}
                 className="text-xxs bg-slate-900 border border-slate-800 hover:border-slate-700 text-sky-300 font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
               >
-                Contador
+                Contador (123456)
               </button>
             </div>
           </div>

@@ -109,3 +109,5 @@ export const Mudanzas: React.FC = () => (
     icon={<Archive className="w-8 h-8" />}
   />
 );
+
+export { Usuarios } from './Usuarios';
