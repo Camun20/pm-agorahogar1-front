@@ -4,7 +4,7 @@ import { useAuth, type UserRole } from '../context/AuthContext';
 import {
   Menu, X, Bell, MessageSquare, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight,
   ClipboardList, Users, Truck, DollarSign, FileSpreadsheet, HelpCircle,
-  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Send, Key
+  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Send, Key, Sun, Moon
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -18,6 +18,21 @@ export const MainLayout: React.FC = () => {
   const { user, logout, updateUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Tema Claro / Oscuro
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('lobbyapp_theme');
+    return (saved as 'dark' | 'light') || 'dark';
+  });
+
+  React.useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light');
+    } else {
+      document.body.classList.remove('light');
+    }
+    localStorage.setItem('lobbyapp_theme', theme);
+  }, [theme]);
 
   // Estados de interfaz interactiva
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -318,6 +333,15 @@ export const MainLayout: React.FC = () => {
           {/* Right: Interaction Icons */}
           <div className="flex items-center gap-1 sm:gap-2">
             
+            {/* THEME TOGGLE BUTTON */}
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition cursor-pointer"
+              title={theme === 'dark' ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-400" />}
+            </button>
+
             {/* 1. NOTIFICATIONS DROP-DOWN */}
             <div className="relative">
               <button

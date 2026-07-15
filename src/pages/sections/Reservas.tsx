@@ -386,31 +386,44 @@ export const Reservas: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Requerida *</label>
-                    <input
-                      type="date"
-                      value={reserveDate}
-                      onChange={(e) => setReserveDate(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100 cursor-pointer"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs text-slate-400 uppercase font-semibold">Horario Requerido *</label>
-                    <select
-                      value={reserveTimeSlot}
-                      onChange={(e) => setReserveTimeSlot(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100 cursor-pointer"
-                      required
-                    >
-                      <option value="08:00 - 10:00">08:00 AM - 10:00 AM</option>
-                      <option value="10:00 - 12:00">10:00 AM - 12:00 PM</option>
-                      <option value="12:00 - 14:00">12:00 PM - 02:00 PM</option>
-                      <option value="14:00 - 18:00">02:00 PM - 06:00 PM</option>
-                      <option value="18:00 - 22:00">06:00 PM - 10:00 PM</option>
-                    </select>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Requerida *</label>
+                  <input
+                    type="date"
+                    value={reserveDate}
+                    onChange={(e) => setReserveDate(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400 uppercase font-semibold block">Horario Requerido *</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      { value: '08:00 - 10:00', label: '08:00 AM - 10:00 AM', desc: 'Mañana Temprana' },
+                      { value: '10:00 - 12:00', label: '10:00 AM - 12:00 PM', desc: 'Media Mañana' },
+                      { value: '12:00 - 14:00', label: '12:00 PM - 02:00 PM', desc: 'Mediodía' },
+                      { value: '14:00 - 18:00', label: '02:00 PM - 06:00 PM', desc: 'Tarde' },
+                      { value: '18:00 - 22:00', label: '06:00 PM - 10:00 PM', desc: 'Noche' }
+                    ].map((slot) => {
+                      const isSelected = reserveTimeSlot === slot.value;
+                      return (
+                        <button
+                          key={slot.value}
+                          type="button"
+                          onClick={() => setReserveTimeSlot(slot.value)}
+                          className={`p-3 border rounded-xl text-left transition-all hover:scale-[1.01] cursor-pointer flex flex-col justify-between ${
+                            isSelected
+                              ? 'bg-indigo-600/10 border-indigo-500 text-white ring-1 ring-indigo-500'
+                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                          }`}
+                        >
+                          <span className="text-[9px] font-bold text-indigo-400 uppercase">{slot.desc}</span>
+                          <span className="text-xs font-semibold mt-1">{slot.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

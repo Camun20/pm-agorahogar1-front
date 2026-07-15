@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
   Archive, Search, Plus, CheckCircle, XCircle,
-  Calendar, AlertCircle, Inbox
+  Calendar, AlertCircle, Inbox, Sunrise, Sunset
 } from 'lucide-react';
 
 interface MovingRequest {
@@ -188,7 +188,7 @@ export const Mudanzas: React.FC = () => {
           <h2 className="text-lg font-bold text-white mb-4">Programar Solicitud de Mudanza</h2>
           
           <form onSubmit={handleRegister} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Requerida *</label>
                 <input
@@ -199,17 +199,37 @@ export const Mudanzas: React.FC = () => {
                   required
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Horario Requerido *</label>
-                <select
-                  value={movingTime}
-                  onChange={(e) => setMovingTime(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
-                  required
-                >
-                  <option value="08:00 AM - 12:00 PM">08:00 AM - 12:00 PM</option>
-                  <option value="13:00 PM - 17:00 PM">01:00 PM - 05:00 PM</option>
-                </select>
+
+              <div className="space-y-2">
+                <label className="text-xs text-slate-400 uppercase font-semibold block">Horario Requerido *</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { value: '08:00 AM - 12:00 PM', label: 'Mañana', hours: '08:00 AM - 12:00 PM', icon: <Sunrise className="w-5 h-5 text-amber-400" /> },
+                    { value: '13:00 PM - 17:00 PM', label: 'Tarde', hours: '01:00 PM - 05:00 PM', icon: <Sunset className="w-5 h-5 text-indigo-400" /> }
+                  ].map((slot) => {
+                    const isSelected = movingTime === slot.value;
+                    return (
+                      <button
+                        key={slot.value}
+                        type="button"
+                        onClick={() => setMovingTime(slot.value)}
+                        className={`p-4 border rounded-2xl text-left transition-all hover:scale-[1.01] cursor-pointer flex items-center gap-3 ${
+                          isSelected
+                            ? 'bg-indigo-600/10 border-indigo-500 text-white ring-1 ring-indigo-500'
+                            : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="shrink-0 p-2 bg-slate-900 border border-slate-800 rounded-xl">
+                          {slot.icon}
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold block text-slate-200">{slot.label}</span>
+                          <span className="text-[10px] text-slate-500 block mt-0.5">{slot.hours}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

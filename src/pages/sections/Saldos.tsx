@@ -22,7 +22,7 @@ interface UserBalance {
 }
 
 export const Saldos: React.FC = () => {
-  const { user } = useAuth();
+  const { user, users } = useAuth();
   const isBillingStaff = user?.role === 'SuperAdmin' || user?.role === 'ResidentialAdmin' || user?.role === 'Accounting';
   
   // States
@@ -235,53 +235,48 @@ export const Saldos: React.FC = () => {
           <h2 className="text-lg font-bold text-white mb-4">Cargar Saldo Residente</h2>
           
           <form onSubmit={handleRegisterBalance} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Usuario (Login) *</label>
-                <input
-                  type="text"
-                  value={residentUsername}
-                  onChange={(e) => setResidentUsername(e.target.value)}
-                  placeholder="ej. resident_usr"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                <label className="text-xs text-slate-400 uppercase font-semibold">Ubicación / Apto *</label>
+                <select
+                  value={locationInput}
+                  onChange={(e) => {
+                    const selectedLoc = e.target.value;
+                    setLocationInput(selectedLoc);
+                    const matchingRes = users.find(u => u.role === 'Resident' && u.location === selectedLoc);
+                    setResidentName(matchingRes ? matchingRes.name : '');
+                    setResidentUsername(matchingRes ? matchingRes.username : '');
+                  }}
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
                   required
-                />
+                >
+                  <option value="">-- Selecciona Apartamento --</option>
+                  {users.filter(u => u.role === 'Resident' && u.location).map(r => (
+                    <option key={r.username} value={r.location}>{r.location}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Nombre del Residente *</label>
+                <label className="text-xs text-slate-400 uppercase font-semibold block">Nombre del Residente</label>
                 <input
                   type="text"
                   value={residentName}
-                  onChange={(e) => setResidentName(e.target.value)}
-                  placeholder="ej. Diana Carolina Ruiz"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                  required
+                  readOnly
+                  placeholder="Auto-completado"
+                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 text-slate-400 rounded-xl outline-none text-sm cursor-not-allowed"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Ubicación / Apto *</label>
-                <input
-                  type="text"
-                  value={locationInput}
-                  onChange={(e) => setLocationInput(e.target.value)}
-                  placeholder="ej. Torre 3 - Apto 402"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                  required
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Límite Pago *</label>
-                <input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
-                  required
-                />
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Límite Pago *</label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                required
+              />
             </div>
 
             <div className="border-t border-slate-800/80 pt-4 space-y-3">

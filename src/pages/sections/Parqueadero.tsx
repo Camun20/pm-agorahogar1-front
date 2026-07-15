@@ -26,7 +26,7 @@ interface VisitorVehicle {
 }
 
 export const Parqueadero: React.FC = () => {
-  const { user } = useAuth();
+  const { user, users } = useAuth();
   const isAdmin = user?.role === 'SuperAdmin' || user?.role === 'ResidentialAdmin';
   const isSecurity = user?.role === 'SuperAdmin' || user?.role === 'Security';
 
@@ -288,44 +288,49 @@ export const Parqueadero: React.FC = () => {
                   required
                 />
               </div>
-            </div>
-
-            <div className="space-y-1.5">
+                  <div className="space-y-1.5">
               <label className="text-xs text-slate-400 uppercase font-semibold">Marca, Modelo & Color *</label>
               <input
                 type="text"
                 value={brandModel}
                 onChange={(e) => setBrandModel(e.target.value)}
                 placeholder="ej. Mazda 3 Gris Metálico"
-                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
                 required
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Nombre Residente *</label>
+                <label className="text-xs text-slate-400 uppercase font-semibold">Ubicación / Apto *</label>
+                <select
+                  value={locationInput}
+                  onChange={(e) => {
+                    const selectedLoc = e.target.value;
+                    setLocationInput(selectedLoc);
+                    const matchingRes = users.find(u => u.role === 'Resident' && u.location === selectedLoc);
+                    setResName(matchingRes ? matchingRes.name : '');
+                  }}
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                  required
+                >
+                  <option value="">-- Selecciona Apartamento --</option>
+                  {users.filter(u => u.role === 'Resident' && u.location).map(r => (
+                    <option key={r.username} value={r.location}>{r.location}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 uppercase font-semibold block">Nombre Residente</label>
                 <input
                   type="text"
                   value={resName}
-                  onChange={(e) => setResName(e.target.value)}
-                  placeholder="ej. Diana Carolina Ruiz"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                  required
+                  readOnly
+                  placeholder="Auto-completado"
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 text-slate-400 rounded-xl outline-none text-sm cursor-not-allowed"
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Ubicación / Apto *</label>
-                <input
-                  type="text"
-                  value={locationInput}
-                  onChange={(e) => setLocationInput(e.target.value)}
-                  placeholder="ej. Torre 3 - Apto 402"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                  required
-                />
-              </div>
-            </div>
+            </div>          </div>
 
             {formError && (
               <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs">

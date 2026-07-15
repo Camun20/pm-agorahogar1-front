@@ -19,7 +19,7 @@ interface Visit {
 }
 
 export const Visitantes: React.FC = () => {
-  const { user } = useAuth();
+  const { user, users } = useAuth();
   const isSecurity = user?.role === 'SuperAdmin' || user?.role === 'Security';
   
   // States
@@ -263,27 +263,34 @@ export const Visitantes: React.FC = () => {
 
             {isSecurity ? (
               /* Security extra inputs: Resident unit and name */
-              <div className="grid grid-cols-2 gap-4 pt-1.5 border-t border-slate-800/80">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1.5 border-t border-slate-800/80">
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-400 uppercase font-semibold">Residente Visitado *</label>
+                  <label className="text-xs text-slate-400 uppercase font-semibold">Ubicación / Apto *</label>
+                  <select
+                    value={locationInput}
+                    onChange={(e) => {
+                      const selectedLoc = e.target.value;
+                      setLocationInput(selectedLoc);
+                      const matchingRes = users.find(u => u.role === 'Resident' && u.location === selectedLoc);
+                      setResidentNameInput(matchingRes ? matchingRes.name : '');
+                    }}
+                    className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                    required={isSecurity}
+                  >
+                    <option value="">-- Selecciona Apartamento --</option>
+                    {users.filter(u => u.role === 'Resident' && u.location).map(r => (
+                      <option key={r.username} value={r.location}>{r.location}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 uppercase font-semibold block">Residente Visitado</label>
                   <input
                     type="text"
                     value={residentNameInput}
-                    onChange={(e) => setResidentNameInput(e.target.value)}
-                    placeholder="ej. Diana Carolina Ruiz"
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                    required={isSecurity}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs text-slate-400 uppercase font-semibold">Ubicación / Apto *</label>
-                  <input
-                    type="text"
-                    value={locationInput}
-                    onChange={(e) => setLocationInput(e.target.value)}
-                    placeholder="ej. Torre 3 - Apto 402"
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                    required={isSecurity}
+                    readOnly
+                    placeholder="Auto-completado al elegir apto"
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 text-slate-400 rounded-xl outline-none text-sm cursor-not-allowed"
                   />
                 </div>
               </div>
