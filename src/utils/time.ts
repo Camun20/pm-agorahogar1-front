@@ -8,12 +8,40 @@ export const syncInternetTime = async () => {
   syncPromise = (async () => {
     const start = Date.now();
     
-    // Method 1: httpbin.org (CORS enabled, debug service, completely uncached)
+    // Method 1: Same-origin HEAD request (CORS-free, extremely fast, CloudFront/Amplify edge clock, 100% uncached in production)
+    try {
+      const response = await fetch(window.location.origin + '/?t=' + Date.now(), {
+        method: 'HEAD',
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      const serverDateStr = response.headers.get('Date');
+      if (serverDateStr) {
+        const networkTime = new Date(serverDateStr).getTime();
+        const localTimeNow = Date.now();
+        const latency = (localTimeNow - start) / 2;
+        timeOffset = networkTime - localTimeNow + latency;
+        isSynced = true;
+        console.log('Internet time synced (HEAD same-origin). Offset (ms):', timeOffset);
+        return;
+      }
+    } catch (e) {
+      console.warn('Same-origin HEAD sync failed, trying external APIs...', e);
+    }
+
+    // Method 2: httpbin.org (CORS enabled, debug service, completely uncached)
     try {
       const response = await fetch('https://httpbin.org/date?t=' + Date.now(), {
         method: 'GET',
         mode: 'cors',
-        cache: 'no-cache'
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       });
       if (response.ok) {
         const data = await response.json();
@@ -31,12 +59,16 @@ export const syncInternetTime = async () => {
       console.warn('httpbin.org failed, trying WorldTimeAPI...', e);
     }
 
-    // Method 2: WorldTimeAPI Bogota timezone (using numeric unixtime for local parsing safety)
+    // Method 3: WorldTimeAPI Bogota timezone (using numeric unixtime for local parsing safety)
     try {
       const response = await fetch('https://worldtimeapi.org/api/timezone/America/Bogota?t=' + Date.now(), {
         method: 'GET',
         mode: 'cors',
-        cache: 'no-cache'
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       });
       if (response.ok) {
         const data = await response.json();
@@ -54,12 +86,16 @@ export const syncInternetTime = async () => {
       console.warn('WorldTimeAPI Bogota failed, trying jsontest.com...', e);
     }
 
-    // Method 3: jsontest.com (parsing UTC string format)
+    // Method 4: jsontest.com (parsing UTC string format)
     try {
       const response = await fetch('https://date.jsontest.com/?t=' + Date.now(), {
         method: 'GET',
         mode: 'cors',
-        cache: 'no-cache'
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       });
       if (response.ok) {
         const data = await response.json();
@@ -77,18 +113,20 @@ export const syncInternetTime = async () => {
       console.warn('jsontest.com failed, trying TimeAPI.io...', e);
     }
 
-    // Method 4: TimeAPI.io Bogota timezone (adding timezone suffix -05:00 for strict local-to-GMT calculation)
+    // Method 5: TimeAPI.io Bogota timezone
     try {
       const response = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=America/Bogota&t=' + Date.now(), {
         method: 'GET',
         mode: 'cors',
-        cache: 'no-cache'
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       });
       if (response.ok) {
         const data = await response.json();
         if (data.dateTime) {
-          // dateTime is in Bogota time format (e.g. 2026-07-16T09:11:51).
-          // Appending "-05:00" forces JS engine to parse it as America/Bogota local time correctly.
           const networkTime = new Date(data.dateTime + "-05:00").getTime();
           const localTimeNow = Date.now();
           const latency = (localTimeNow - start) / 2;
@@ -99,27 +137,7 @@ export const syncInternetTime = async () => {
         }
       }
     } catch (e) {
-      console.warn('TimeAPI.io Bogota failed, trying same-origin HEAD...', e);
-    }
-
-    // Method 5: Same-origin HEAD request
-    try {
-      const response = await fetch(window.location.origin + '/?t=' + Date.now(), {
-        method: 'HEAD',
-        cache: 'no-cache'
-      });
-      const serverDateStr = response.headers.get('Date');
-      if (serverDateStr) {
-        const networkTime = new Date(serverDateStr).getTime();
-        const localTimeNow = Date.now();
-        const latency = (localTimeNow - start) / 2;
-        timeOffset = networkTime - localTimeNow + latency;
-        isSynced = true;
-        console.log('Internet time synced (HEAD same-origin). Offset (ms):', timeOffset);
-        return;
-      }
-    } catch (e) {
-      console.warn('Same-origin HEAD sync failed. Falling back to local clock formatting.', e);
+      console.warn('TimeAPI.io Bogota failed. Fallback to local clock.', e);
     }
   })();
 
