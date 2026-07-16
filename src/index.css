@@ -156,15 +156,21 @@ body.light a.bg-white:hover {
 }
 body.light button.bg-slate-900,
 body.light button.bg-slate-850,
+body.light button.bg-slate-800,
 body.light button.bg-slate-950\/60,
-body.light button.border-slate-800 {
+body.light button.bg-slate-800\/60,
+body.light button.border-slate-800,
+body.light button.border-slate-700,
+body.light .bg-slate-800\/60 {
   background-color: #f3e8ff !important;
   color: #6b21a8 !important;
   border-color: #e9d5ff !important;
 }
 body.light button.bg-slate-900:hover,
-body.light button.bg-slate-850:hover {
+body.light button.bg-slate-850:hover,
+body.light button.bg-slate-800:hover {
   background-color: #e9d5ff !important;
+  color: #6b21a8 !important;
 }
 
 /* Fully White Tables and Lists styling */
@@ -229,4 +235,30 @@ body.light .bg-red-500\/20 {
   color: #991b1b !important;
   border: 1px solid #fecaca !important;
 }
+
+/* Active sidebar items text should be white */
+body.light .bg-gradient-to-r.from-indigo-600.to-purple-600,
+body.light .bg-gradient-to-r.from-indigo-600.to-purple-600 * {
+  color: #ffffff !important;
+}
+
+/* Admin chat container & bubble styles */
+body.light .bg-slate-950\/40,
+body.light .bg-slate-950\/80 {
+  background-color: #ffffff !important;
+}
+body.light .bg-slate-800.text-slate-200 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+body.light .bg-slate-800\/80 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+body.light .bg-slate-900\/90 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
 
