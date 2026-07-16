@@ -261,4 +261,17 @@ body.light .bg-slate-900\/90 {
   border-color: #cbd5e1 !important;
 }
 
+/* Dashboard light mode widgets overrides (morado pastel) */
+body.light .grid.grid-cols-2 .bg-slate-900\/80,
+body.light .grid.grid-cols-2 .bg-slate-900\/80 *,
+body.light .p-3.bg-slate-900\/60,
+body.light .p-3.bg-slate-900\/60 * {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+body.light .grid.grid-cols-2 .bg-slate-900\/80 .text-emerald-400 {
+  color: #166534 !important;
+}
+
 
