@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getFormattedNetworkTime } from '../../utils/time';
+import { getFormattedNetworkTime, ensureTimeSynced } from '../../utils/time';
 import { addNotification } from '../../utils/notifications';
 import { 
   Truck, Search, Plus, CheckCircle, PackageOpen, Inbox,
@@ -96,9 +96,11 @@ export const Domicilios: React.FC = () => {
     return matchesSearch;
   });
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    await ensureTimeSynced();
 
     if (!company.trim() || !recipient.trim() || !locationInput.trim()) {
       setFormError('Por favor completa todos los campos obligatorio (*).');
@@ -133,7 +135,8 @@ export const Domicilios: React.FC = () => {
     setActiveTab('list');
   };
 
-  const handleMarkAsDelivered = (deliveryId: string) => {
+  const handleMarkAsDelivered = async (deliveryId: string) => {
+    await ensureTimeSynced();
     const updated = deliveries.map(d => {
       if (d.id === deliveryId) {
         // Dispatch Resident Notification

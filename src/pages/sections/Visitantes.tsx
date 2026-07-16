@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getFormattedNetworkTime, getFormattedNetworkDateOnly } from '../../utils/time';
+import { getFormattedNetworkTime, getFormattedNetworkDateOnly, ensureTimeSynced } from '../../utils/time';
 import { addNotification } from '../../utils/notifications';
 import { 
   Users, UserPlus, Calendar, Search, ShieldCheck, CheckCircle2,
@@ -107,9 +107,11 @@ export const Visitantes: React.FC = () => {
     return matchesSearch;
   });
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    await ensureTimeSynced();
 
     if (!visitorName.trim() || !documentId.trim() || (!isSecurity && !scheduledDate)) {
       setFormError('Por favor completa todos los campos obligatorios (*).');
@@ -145,7 +147,8 @@ export const Visitantes: React.FC = () => {
   };
 
   // Check-in (Security)
-  const handleCheckIn = (visitId: string) => {
+  const handleCheckIn = async (visitId: string) => {
+    await ensureTimeSynced();
     const updated = visits.map(v => {
       if (v.id === visitId) {
         // Dispatch Resident Notification
@@ -167,7 +170,8 @@ export const Visitantes: React.FC = () => {
   };
 
   // Check-out (Security)
-  const handleCheckOut = (visitId: string) => {
+  const handleCheckOut = async (visitId: string) => {
+    await ensureTimeSynced();
     const updated = visits.map(v => {
       if (v.id === visitId) {
         return {
