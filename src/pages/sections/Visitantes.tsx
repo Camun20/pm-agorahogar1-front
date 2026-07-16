@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getFormattedNetworkTime, getFormattedNetworkDateOnly, ensureTimeSynced } from '../../utils/time';
 import { addNotification } from '../../utils/notifications';
 import { 
-  Users, UserPlus, Calendar, Search, ShieldCheck, CheckCircle2,
+  Users, UserPlus, Calendar, Search, CheckCircle2,
   Clock, LogOut, ArrowRightLeft, Info, AlertCircle
 } from 'lucide-react';
 
@@ -33,6 +33,7 @@ export const Visitantes: React.FC = () => {
   const [visitorName, setVisitorName] = useState('');
   const [documentId, setDocumentId] = useState('');
   const [plate, setPlate] = useState('');
+  const [vehicleDescription, setVehicleDescription] = useState('');
   const [scheduledDate, setScheduledDate] = useState('');
   
   // Security Form addition: resident name and unit
@@ -113,8 +114,14 @@ export const Visitantes: React.FC = () => {
 
     await ensureTimeSynced();
 
-    if (!visitorName.trim() || !documentId.trim() || (!isSecurity && !scheduledDate)) {
+    if (!visitorName.trim() || !documentId.trim() || (isSecurity && !locationInput)) {
       setFormError('Por favor completa todos los campos obligatorios (*).');
+      return;
+    }
+
+    // Require vehicle description if plate is entered
+    if (plate.trim() !== '' && !vehicleDescription.trim()) {
+      setFormError('Por favor ingresa la descripción del vehículo (ej: Kia Rojo).');
       return;
     }
 
@@ -124,10 +131,8 @@ export const Visitantes: React.FC = () => {
       documentId: documentId.trim(),
       plate: plate.trim() || undefined,
       scheduledDate: isSecurity ? getFormattedNetworkDateOnly() : scheduledDate,
-      // If resident: auto-fill their info. If security: use inputs.
       residentName: isSecurity ? residentNameInput.trim() || 'No especificado' : user?.name || '',
       location: isSecurity ? locationInput.trim() || 'No especificado' : user?.location || '',
-      // Security creates check-in directly, Resident pre-authorizes
       status: isSecurity ? 'En Sitio' : 'Pre-autorizado',
       ...(isSecurity && { arrivalTime: getFormattedNetworkTime() })
     };
@@ -136,10 +141,38 @@ export const Visitantes: React.FC = () => {
     setVisits(updated);
     localStorage.setItem('lobbyapp_visits', JSON.stringify(updated));
 
+    // Sync with visitor parking if security logs a vehicle
+    if (plate.trim() !== '' && isSecurity) {
+      try {
+        const savedVis = localStorage.getItem('lobbyapp_park_visitor');
+        const visitorCars = savedVis ? JSON.parse(savedVis) : [];
+        const activeSlots = visitorCars.filter((p: any) => p.status === 'Activo').map((p: any) => p.slotId);
+        const allSlots = ['V-01', 'V-02', 'V-03', 'V-04', 'V-05', 'V-06', 'V-07', 'V-08', 'V-09', 'V-10'];
+        const freeSlot = allSlots.find(s => !activeSlots.includes(s)) || 'V-Gen';
+
+        const newVehicle = {
+          id: `vv_${Date.now()}`,
+          slotId: freeSlot,
+          plate: plate.trim().toUpperCase(),
+          brandModel: vehicleDescription.trim(),
+          locationVisited: locationInput.trim(),
+          residentVisited: residentNameInput.trim() || 'No especificado',
+          arrivalTime: getFormattedNetworkTime(),
+          status: 'Activo'
+        };
+
+        const updatedCars = [newVehicle, ...visitorCars];
+        localStorage.setItem('lobbyapp_park_visitor', JSON.stringify(updatedCars));
+      } catch (err) {
+        console.warn('Error syncing parking space', err);
+      }
+    }
+
     // Reset fields
     setVisitorName('');
     setDocumentId('');
     setPlate('');
+    setVehicleDescription('');
     setScheduledDate('');
     setResidentNameInput('');
     setLocationInput('');
@@ -172,8 +205,10 @@ export const Visitantes: React.FC = () => {
   // Check-out (Security)
   const handleCheckOut = async (visitId: string) => {
     await ensureTimeSynced();
+    let visitPlate: string | undefined = undefined;
     const updated = visits.map(v => {
       if (v.id === visitId) {
+        visitPlate = v.plate;
         return {
           ...v,
           status: 'Completado' as const,
@@ -184,6 +219,29 @@ export const Visitantes: React.FC = () => {
     });
     setVisits(updated);
     localStorage.setItem('lobbyapp_visits', JSON.stringify(updated));
+
+    // Auto check-out vehicle in parking if plate exists
+    if (visitPlate) {
+      try {
+        const savedVis = localStorage.getItem('lobbyapp_park_visitor');
+        if (savedVis) {
+          const visitorCars = JSON.parse(savedVis) as any[];
+          const updatedCars = visitorCars.map(c => {
+            if (c.plate.toUpperCase() === visitPlate!.toUpperCase() && c.status === 'Activo') {
+              return {
+                ...c,
+                status: 'Salida',
+                departureTime: getFormattedNetworkTime()
+              };
+            }
+            return c;
+          });
+          localStorage.setItem('lobbyapp_park_visitor', JSON.stringify(updatedCars));
+        }
+      } catch (e) {
+        console.warn('Could not auto-checkout vehicle', e);
+      }
+    }
   };
 
   return (
@@ -200,40 +258,42 @@ export const Visitantes: React.FC = () => {
             <p className="text-slate-400 text-sm mt-1">
               {isSecurity 
                 ? 'Monitorea el acceso de invitados, consulta el historial general y registra nuevos ingresos.'
-                : 'Registra a tus invitados para pre-autorizar su entrada de manera rápida y sin llamadas.'}
+                : 'Consulta el historial de las visitas registradas a tu vivienda.'}
             </p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('list')}
-              className={`px-4 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer ${
-                activeTab === 'list'
-                  ? 'bg-slate-800 border-slate-700 text-white'
-                  : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Listado
-            </button>
-            <button
-              onClick={() => setActiveTab('register')}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl transition cursor-pointer ${
-                activeTab === 'register'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-900 border border-slate-800 text-indigo-400 hover:bg-slate-800/50'
-              }`}
-            >
-              <UserPlus className="w-4 h-4" />
-              {isSecurity ? 'Registrar Entrada' : 'Pre-autorizar Visita'}
-            </button>
-          </div>
+          {isSecurity && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveTab('list')}
+                className={`px-4 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer ${
+                  activeTab === 'list'
+                    ? 'bg-slate-800 border-slate-700 text-white'
+                    : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Listado
+              </button>
+              <button
+                onClick={() => setActiveTab('register')}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl transition cursor-pointer ${
+                  activeTab === 'register'
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-900 border border-slate-800 text-indigo-400 hover:bg-slate-800/50'
+                }`}
+              >
+                <UserPlus className="w-4 h-4" />
+                Registrar Entrada
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {activeTab === 'register' ? (
+      {activeTab === 'register' && isSecurity ? (
         /* Register form */
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-xl animate-fade-in max-w-xl mx-auto">
           <h2 className="text-lg font-bold text-white mb-4">
-            {isSecurity ? 'Registrar Entrada Directa' : 'Pre-autorizar Invitado'}
+            Registrar Entrada Directa
           </h2>
           
           <form onSubmit={handleRegister} className="space-y-4">
@@ -273,7 +333,22 @@ export const Visitantes: React.FC = () => {
               </div>
             </div>
 
-            {isSecurity ? (
+            {/* Conditionally show Vehicle description input if plate is entered */}
+            {plate.trim() !== '' && (
+              <div className="space-y-1.5 animate-fade-in">
+                <label className="text-xs text-slate-400 uppercase font-semibold">Descripción del Vehículo (Modelo/Color/Marca) *</label>
+                <input
+                  type="text"
+                  value={vehicleDescription}
+                  onChange={(e) => setVehicleDescription(e.target.value)}
+                  placeholder="ej. Kia Rojo"
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                  required
+                />
+              </div>
+            )}
+
+            {isSecurity && (
               /* Security extra inputs: Resident unit and name */
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1.5 border-t border-slate-800/80">
                 <div className="space-y-1.5">
@@ -306,20 +381,6 @@ export const Visitantes: React.FC = () => {
                   />
                 </div>
               </div>
-            ) : null}
-
-            {!isSecurity && (
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Programada *</label>
-                <input
-                  type="date"
-                  value={scheduledDate}
-                  onChange={(e) => setScheduledDate(e.target.value)}
-                  onClick={(e) => e.currentTarget.showPicker()}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
-                  required={!isSecurity}
-                />
-              </div>
             )}
 
             {formError && (
@@ -341,7 +402,7 @@ export const Visitantes: React.FC = () => {
                 type="submit"
                 className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-xl shadow-lg"
               >
-                {isSecurity ? 'Registrar Entrada' : 'Registrar Pre-autorización'}
+                Registrar Entrada
               </button>
             </div>
           </form>
@@ -366,7 +427,7 @@ export const Visitantes: React.FC = () => {
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto border border-slate-800/50 rounded-xl bg-slate-950/30">
+          <div className="overflow-x-auto border border-slate-800/50 rounded-xl bg-slate-955/30">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-800 bg-slate-900/50 text-xs text-slate-400 font-semibold uppercase tracking-wider">
@@ -381,72 +442,78 @@ export const Visitantes: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-800/50 text-sm">
                 {filteredVisits.length > 0 ? (
-                  filteredVisits.map((v) => (
-                    <tr key={v.id} className="hover:bg-slate-900/30 transition-colors">
-                      <td className="px-5 py-4">
-                        <div className="font-semibold text-slate-200">{v.visitorName}</div>
-                        <div className="text-xxs text-slate-500 flex items-center gap-1 mt-0.5">
-                          <Calendar className="w-3 h-3" />
-                          Prog: {v.scheduledDate}
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 font-mono text-xs text-slate-300">{v.documentId}</td>
-                      <td className="px-5 py-4 text-xs font-semibold text-indigo-400">{v.plate || 'Sin Vehículo'}</td>
+                  filteredVisits.map((visit) => (
+                    <tr key={visit.id} className="hover:bg-slate-900/30 transition-colors">
+                      <td className="px-5 py-4 font-semibold text-slate-200">{visit.visitorName}</td>
+                      <td className="px-5 py-4 font-mono text-xs text-indigo-400">{visit.documentId}</td>
+                      <td className="px-5 py-4 text-slate-300 font-mono text-xs">{visit.plate || '—'}</td>
                       {isSecurity && (
                         <td className="px-5 py-4">
-                          <div className="text-slate-300 font-medium">{v.residentName}</div>
-                          <div className="text-xxs text-slate-500">{v.location}</div>
+                          <div className="text-slate-350">{visit.residentName}</div>
+                          <div className="text-xxs text-slate-500">{visit.location}</div>
                         </td>
                       )}
                       <td className="px-5 py-4">
-                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                          v.status === 'Pre-autorizado' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
-                          v.status === 'En Sitio' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' :
-                          'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                        }`}>
-                          {v.status}
-                        </span>
+                        {visit.status === 'Pre-autorizado' && (
+                          <span className="px-2.5 py-0.5 rounded-full text-xxs font-semibold bg-indigo-500/10 text-indigo-455 border border-indigo-500/20">
+                            Pre-autorizado
+                          </span>
+                        )}
+                        {visit.status === 'En Sitio' && (
+                          <span className="px-2.5 py-0.5 rounded-full text-xxs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                            En Sitio
+                          </span>
+                        )}
+                        {visit.status === 'Completado' && (
+                          <span className="px-2.5 py-0.5 rounded-full text-xxs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Completado
+                          </span>
+                        )}
                       </td>
                       <td className="px-5 py-4 text-xs text-slate-400">
-                        {v.arrivalTime && (
+                        {visit.arrivalTime ? (
                           <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-slate-500" />
-                            E: {v.arrivalTime}
+                            <Clock className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Ingreso: {visit.arrivalTime}</span>
+                          </div>
+                        ) : (
+                          <span className="text-slate-650 flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5 text-slate-600" />
+                            <span>Prog: {visit.scheduledDate}</span>
+                          </span>
+                        )}
+                        {visit.departureTime && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <LogOut className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Salida: {visit.departureTime}</span>
                           </div>
                         )}
-                        {v.departureTime && (
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <LogOut className="w-3 h-3 text-slate-500" />
-                            S: {v.departureTime}
-                          </div>
-                        )}
-                        {!v.arrivalTime && <span className="text-slate-600">Ninguno</span>}
                       </td>
                       {isSecurity && (
                         <td className="px-5 py-4 text-right">
-                          {v.status === 'Pre-autorizado' && (
-                            <button
-                              onClick={() => handleCheckIn(v.id)}
-                              className="inline-flex items-center gap-1 px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs rounded-lg transition"
-                            >
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              Marcar Entrada
-                            </button>
-                          )}
-                          {v.status === 'En Sitio' && (
-                            <button
-                              onClick={() => handleCheckOut(v.id)}
-                              className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-lg transition"
-                            >
-                              <ArrowRightLeft className="w-3.5 h-3.5" />
-                              Marcar Salida
-                            </button>
-                          )}
-                          {v.status === 'Completado' && (
-                            <span className="text-slate-600 text-xs flex items-center justify-end gap-1">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Completado
-                            </span>
-                          )}
+                          <div className="flex justify-end gap-1.5">
+                            {visit.status === 'Pre-autorizado' && (
+                              <button
+                                onClick={() => handleCheckIn(visit.id)}
+                                className="inline-flex items-center gap-1 py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xxs rounded-lg transition cursor-pointer"
+                              >
+                                <CheckCircle2 className="w-3 h-3" />
+                                Registrar Ingreso
+                              </button>
+                            )}
+                            {visit.status === 'En Sitio' && (
+                              <button
+                                onClick={() => handleCheckOut(visit.id)}
+                                className="inline-flex items-center gap-1 py-1.5 px-3 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xxs rounded-lg transition cursor-pointer"
+                              >
+                                <ArrowRightLeft className="w-3 h-3" />
+                                Registrar Salida
+                              </button>
+                            )}
+                            {visit.status === 'Completado' && (
+                              <span className="text-xxs text-slate-600 italic">Historial</span>
+                            )}
+                          </div>
                         </td>
                       )}
                     </tr>
@@ -454,8 +521,8 @@ export const Visitantes: React.FC = () => {
                 ) : (
                   <tr>
                     <td colSpan={isSecurity ? 7 : 5} className="px-5 py-12 text-center text-slate-500">
-                      <Info className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                      No se encontraron registros de visitas.
+                      <Info className="w-8 h-8 mx-auto mb-2 text-slate-600" />
+                      No hay registros de visitas en este momento.
                     </td>
                   </tr>
                 )}
