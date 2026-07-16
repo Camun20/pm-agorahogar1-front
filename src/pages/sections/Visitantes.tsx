@@ -303,6 +303,7 @@ export const Visitantes: React.FC = () => {
                 type="date"
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
+                onClick={(e) => e.currentTarget.showPicker()}
                 className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
                 required
               />

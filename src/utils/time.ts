@@ -50,24 +50,26 @@ export const getNetworkDate = (): Date => {
 export const getFormattedNetworkTime = (): string => {
   const date = getNetworkDate();
   
-  const pad = (num: number) => String(num).padStart(2, '0');
-  
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  
-  let hours = date.getHours();
-  const minutes = pad(date.getMinutes());
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  
-  return `${year}-${month}-${day} ${pad(hours)}:${minutes} ${ampm}`;
+  // Force America/Bogota (GMT-5) timezone formatting
+  return date.toLocaleString('es-CO', {
+    timeZone: 'America/Bogota',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
 };
 
 export const getFormattedNetworkDateOnly = (): string => {
   const date = getNetworkDate();
-  const pad = (num: number) => String(num).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const formatter = new Intl.DateTimeFormat('fr-CA', {
+    timeZone: 'America/Bogota',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  return formatter.format(date); // YYYY-MM-DD in Colombia timezone
 };

@@ -393,7 +393,8 @@ export const Reservas: React.FC = () => {
                     type="date"
                     value={reserveDate}
                     onChange={(e) => setReserveDate(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                    onClick={(e) => e.currentTarget.showPicker()}
+                    className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
                     required
                   />
                 </div>
