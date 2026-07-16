@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, type UserRole } from '../context/AuthContext';
 import { getNotifications, markAllNotificationsAsRead } from '../utils/notifications';
 import {
-  Menu, X, Bell, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight,
+  Menu, X, Bell, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight, Home,
   ClipboardList, Users, Truck, DollarSign, FileSpreadsheet, HelpCircle,
   Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Key, Sun, Moon
 } from 'lucide-react';
@@ -165,6 +165,12 @@ export const MainLayout: React.FC = () => {
       path: '/residentes',
       icon: <Users className="w-5 h-5" />,
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Accounting'],
+    },
+    {
+      name: 'Mi Hogar',
+      path: '/mi-hogar',
+      icon: <Home className="w-5 h-5" />,
+      allowedRoles: ['Resident'],
     },
   ];
 

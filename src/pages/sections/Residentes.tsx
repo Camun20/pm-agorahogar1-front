@@ -1,6 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Users, Search, Building, Mail, Info, Phone } from 'lucide-react';
+import { Users, Search, Building, Mail, Info, Phone, X } from 'lucide-react';
+
+interface User {
+  username: string;
+  email: string;
+  name: string;
+  role: string;
+  location?: string;
+  phone?: string;
+}
+
+interface Inhabitant {
+  id: string;
+  name: string;
+  documentId: string;
+  age: number;
+  relationship: string;
+  residentLocation: string;
+}
 
 export const Residentes: React.FC = () => {
   const { users } = useAuth();
@@ -8,6 +26,22 @@ export const Residentes: React.FC = () => {
   // States
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name-asc' | 'name-desc' | 'location-asc'>('name-asc');
+  const [allInhabitants, setAllInhabitants] = useState<Inhabitant[]>([]);
+  
+  // Modal State
+  const [selectedResident, setSelectedResident] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('lobbyapp_inhabitants');
+    if (saved) {
+      try {
+        setAllInhabitants(JSON.parse(saved));
+      } catch (e) {
+        console.warn('Error loading inhabitants list', e);
+      }
+    }
+  }, [isModalOpen]); // reload from storage when modal opens/closes or lists update
 
   // Filter only users with Resident role
   const residents = users.filter(u => u.role === 'Resident');
@@ -39,6 +73,16 @@ export const Residentes: React.FC = () => {
     return 0;
   });
 
+  const getInhabitantsForLocation = (location?: string) => {
+    if (!location) return [];
+    return allInhabitants.filter(inh => inh.residentLocation === location);
+  };
+
+  const handleOpenDetails = (resident: User) => {
+    setSelectedResident(resident);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner */}
@@ -50,10 +94,10 @@ export const Residentes: React.FC = () => {
             Consulta
           </span>
           <h1 className="text-2xl font-extrabold text-white tracking-tight">
-            Directorio de Residentes
+            Directorio de Residentes Propietarios
           </h1>
           <p className="mt-1.5 text-slate-400 text-sm max-w-xl">
-            Sección de consulta para buscar y ordenar de forma rápida los residentes activos del conjunto.
+            Consulta los propietarios registrados por casa/apto y conoce los habitantes asociados a cada vivienda.
           </p>
         </div>
       </div>
@@ -99,47 +143,64 @@ export const Residentes: React.FC = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-900/50 text-xs text-slate-400 font-semibold uppercase tracking-wider">
-                <th className="px-5 py-3.5">Nombre Completo</th>
-                <th className="px-5 py-3.5">Usuario</th>
+                <th className="px-5 py-3.5">Nombre Propietario</th>
                 <th className="px-5 py-3.5">Ubicación</th>
-                <th className="px-5 py-3.5">Correo Electrónico</th>
-                <th className="px-5 py-3.5">Celular</th>
+                <th className="px-5 py-3.5">Contacto</th>
+                <th className="px-5 py-3.5">Habitantes</th>
+                <th className="px-5 py-3.5">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50 text-sm">
               {sortedResidents.length > 0 ? (
-                sortedResidents.map((r) => (
-                  <tr key={r.username} className="hover:bg-slate-900/30 transition-colors">
-                    <td className="px-5 py-4 font-semibold text-slate-200">{r.name}</td>
-                    <td className="px-5 py-4 font-mono text-xs text-indigo-400">{r.username}</td>
-                    <td className="px-5 py-4 text-slate-300">
-                      {r.location ? (
-                        <span className="flex items-center gap-1.5">
-                          <Building className="w-4 h-4 text-slate-500" />
-                          {r.location}
+                sortedResidents.map((r) => {
+                  const unitInhabitants = getInhabitantsForLocation(r.location);
+                  return (
+                    <tr key={r.username} className="hover:bg-slate-900/30 transition-colors">
+                      <td className="px-5 py-4">
+                        <div className="font-semibold text-slate-200">{r.name}</div>
+                        <div className="font-mono text-[10px] text-indigo-400">{r.username}</div>
+                      </td>
+                      <td className="px-5 py-4 text-slate-300">
+                        {r.location ? (
+                          <span className="flex items-center gap-1.5">
+                            <Building className="w-4 h-4 text-slate-500" />
+                            {r.location}
+                          </span>
+                        ) : (
+                          <span className="text-slate-650">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-col gap-0.5 text-xs text-slate-400">
+                          <span className="flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5 text-slate-600" />
+                            {r.email}
+                          </span>
+                          {r.phone && (
+                            <span className="flex items-center gap-1.5">
+                              <Phone className="w-3.5 h-3.5 text-slate-600" />
+                              {r.phone}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">
+                          {unitInhabitants.length + 1} persona{unitInhabitants.length + 1 !== 1 ? 's' : ''}
                         </span>
-                      ) : (
-                        <span className="text-slate-600">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-slate-450">
-                      <span className="flex items-center gap-1.5">
-                        <Mail className="w-4 h-4 text-slate-600" />
-                        {r.email}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-slate-400">
-                      {r.phone ? (
-                        <span className="flex items-center gap-1.5">
-                          <Phone className="w-3.5 h-3.5 text-slate-600" />
-                          {r.phone}
-                        </span>
-                      ) : (
-                        <span className="text-slate-600">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-5 py-4">
+                        <button
+                          onClick={() => handleOpenDetails(r)}
+                          className="inline-flex items-center gap-1 py-1.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+                        >
+                          <Info className="w-3.5 h-3.5" />
+                          Ver Detalles
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={5} className="px-5 py-12 text-center text-slate-500">
@@ -151,10 +212,105 @@ export const Residentes: React.FC = () => {
             </tbody>
           </table>
         </div>
-
       </div>
+
+      {/* Details Modal - Admin & Security query */}
+      {isModalOpen && selectedResident && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl max-w-lg w-full relative">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2.5 pb-4 border-b border-slate-800 mb-4">
+              <Building className="w-6 h-6 text-indigo-400" />
+              <div>
+                <h3 className="font-extrabold text-white text-lg">Vivienda: {selectedResident.location}</h3>
+                <p className="text-slate-400 text-xs mt-0.5">Consulta de habitantes y propietario titular</p>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              {/* Propietario / Titular card */}
+              <div className="p-4 bg-slate-950/85 border border-slate-850 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Propietario / Titular de Cuenta</span>
+                  <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-extrabold rounded-full uppercase">
+                    Titular
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <p className="font-bold text-slate-200 text-sm">{selectedResident.name}</p>
+                  <p className="text-xs text-slate-500 font-mono">Usuario: {selectedResident.username}</p>
+                  {selectedResident.phone && <p className="text-xs text-slate-400">Tel: {selectedResident.phone}</p>}
+                </div>
+              </div>
+
+              {/* Co-habitantes list */}
+              <div className="space-y-3">
+                <h4 className="text-xs text-slate-400 uppercase font-semibold tracking-wider">
+                  Otros Habitantes Registrados
+                </h4>
+                
+                <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                  {getInhabitantsForLocation(selectedResident.location).length > 0 ? (
+                    getInhabitantsForLocation(selectedResident.location).map((inh) => (
+                      <div key={inh.id} className="p-3 bg-slate-955 border border-slate-800 rounded-xl flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-slate-200 text-xs">{inh.name}</div>
+                          <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500 font-mono">
+                            <span>CC: {inh.documentId}</span>
+                            <span>•</span>
+                            <span>{inh.age} años</span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[9px] font-bold uppercase rounded-full">
+                            {inh.relationship}
+                          </span>
+                          
+                          {/* Warnings for safety staff */}
+                          <div className="flex gap-1">
+                            {inh.age < 12 && (
+                              <span className="px-1.5 py-0.2 bg-sky-500/10 text-sky-400 border border-sky-500/10 text-[8px] font-extrabold rounded-full uppercase">
+                                Menor
+                              </span>
+                            )}
+                            {inh.age >= 65 && (
+                              <span className="px-1.5 py-0.2 bg-amber-500/10 text-amber-400 border border-amber-500/10 text-[8px] font-extrabold rounded-full uppercase">
+                                3ra Edad
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
+                      No hay otros habitantes registrados para esta ubicación. Solo reside el propietario.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-slate-800 mt-5">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl transition cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
 export default Residentes;

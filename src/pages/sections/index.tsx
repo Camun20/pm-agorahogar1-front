@@ -13,3 +13,4 @@ export { Reservas } from './Reservas';
 export { Mudanzas } from './Mudanzas';
 export { Usuarios } from './Usuarios';
 export { Residentes } from './Residentes';
+export { MiHogar } from './MiHogar';

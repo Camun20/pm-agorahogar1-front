@@ -24,7 +24,8 @@ import {
   Reservas,
   Mudanzas,
   Usuarios,
-  Residentes
+  Residentes,
+  MiHogar
 } from '../pages/sections';
 
 export const AppRoutes: React.FC = () => {
@@ -192,6 +193,16 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['SuperAdmin', 'ResidentialAdmin', 'Security', 'Accounting']}>
               <Residentes />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 16. Mi Hogar (Residentes co-habitantes) */}
+        <Route
+          path="mi-hogar"
+          element={
+            <ProtectedRoute allowedRoles={['Resident']}>
+              <MiHogar />
             </ProtectedRoute>
           }
         />
