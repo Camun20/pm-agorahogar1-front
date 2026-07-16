@@ -1,6 +1,7 @@
 let timeOffset = 0; // offset in milliseconds
 let isSynced = false; // sync status indicator
 let syncPromise: Promise<void> | null = null;
+let lastSyncTime = 0; // timestamp of the last successful sync
 
 export const syncInternetTime = async () => {
   if (syncPromise) return syncPromise;
@@ -8,10 +9,12 @@ export const syncInternetTime = async () => {
   syncPromise = (async () => {
     const start = Date.now();
     
-    // Method 1: Same-origin HEAD request (CORS-free, extremely fast, CloudFront/Amplify edge clock, 100% uncached in production)
+    // Method 1: Same-origin POST request (CORS-free, extremely fast, CloudFront/Amplify edge clock)
+    // POST requests are NEVER cached by CDNs or browsers by definition.
+    // Even if it returns 405 Method Not Allowed or 404, the response headers contain the exact, uncached server Date.
     try {
       const response = await fetch(window.location.origin + '/?t=' + Date.now(), {
-        method: 'HEAD',
+        method: 'POST',
         cache: 'no-cache',
         headers: {
           'Cache-Control': 'no-cache',
@@ -25,11 +28,12 @@ export const syncInternetTime = async () => {
         const latency = (localTimeNow - start) / 2;
         timeOffset = networkTime - localTimeNow + latency;
         isSynced = true;
-        console.log('Internet time synced (HEAD same-origin). Offset (ms):', timeOffset);
+        lastSyncTime = Date.now();
+        console.log('Internet time synced (POST same-origin). Offset (ms):', timeOffset);
         return;
       }
     } catch (e) {
-      console.warn('Same-origin HEAD sync failed, trying external APIs...', e);
+      console.warn('Same-origin POST sync failed, trying external APIs...', e);
     }
 
     // Method 2: httpbin.org (CORS enabled, debug service, completely uncached)
@@ -51,6 +55,7 @@ export const syncInternetTime = async () => {
           const latency = (localTimeNow - start) / 2;
           timeOffset = networkTime - localTimeNow + latency;
           isSynced = true;
+          lastSyncTime = Date.now();
           console.log('Internet time synced (httpbin.org). Offset (ms):', timeOffset);
           return;
         }
@@ -78,6 +83,7 @@ export const syncInternetTime = async () => {
           const latency = (localTimeNow - start) / 2;
           timeOffset = networkTime - localTimeNow + latency;
           isSynced = true;
+          lastSyncTime = Date.now();
           console.log('Internet time synced (WorldTimeAPI Bogota). Offset (ms):', timeOffset);
           return;
         }
@@ -105,6 +111,7 @@ export const syncInternetTime = async () => {
           const latency = (localTimeNow - start) / 2;
           timeOffset = networkTime - localTimeNow + latency;
           isSynced = true;
+          lastSyncTime = Date.now();
           console.log('Internet time synced (jsontest.com). Offset (ms):', timeOffset);
           return;
         }
@@ -132,6 +139,7 @@ export const syncInternetTime = async () => {
           const latency = (localTimeNow - start) / 2;
           timeOffset = networkTime - localTimeNow + latency;
           isSynced = true;
+          lastSyncTime = Date.now();
           console.log('Internet time synced (TimeAPI.io Bogota). Offset (ms):', timeOffset);
           return;
         }
@@ -145,10 +153,13 @@ export const syncInternetTime = async () => {
 };
 
 export const ensureTimeSynced = async () => {
-  if (syncPromise) {
-    await syncPromise;
-  } else {
+  const now = Date.now();
+  // Force a fresh time sync if never synced, or if last sync was more than 5 minutes ago
+  if (!isSynced || (now - lastSyncTime > 5 * 60 * 1000)) {
+    syncPromise = null;
     await syncInternetTime();
+  } else if (syncPromise) {
+    await syncPromise;
   }
 };
 
