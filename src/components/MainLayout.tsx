@@ -79,6 +79,12 @@ export const MainLayout: React.FC = () => {
       allowedRoles: ['Resident'],
     },
     {
+      name: 'Gestión Usuarios',
+      path: '/usuarios',
+      icon: <Users className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin'],
+    },
+    {
       name: 'Residentes',
       path: '/residentes',
       icon: <Users className="w-5 h-5" />,
@@ -97,24 +103,6 @@ export const MainLayout: React.FC = () => {
       allowedRoles: ['SuperAdmin', 'Security', 'Resident'],
     },
     {
-      name: 'Parqueadero',
-      path: '/parqueadero',
-      icon: <Car className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
-    },
-    {
-      name: 'Reservas',
-      path: '/reservas',
-      icon: <CalendarDays className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
-    },
-    {
-      name: 'Mudanzas',
-      path: '/mudanzas',
-      icon: <Archive className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
-    },
-    {
       name: 'Saldos',
       path: '/saldos',
       icon: <DollarSign className="w-5 h-5" />,
@@ -127,9 +115,27 @@ export const MainLayout: React.FC = () => {
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Accounting', 'Resident'],
     },
     {
+      name: 'Recibos Públicos',
+      path: '/recibos-publicos',
+      icon: <Lightbulb className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'Security', 'Resident'],
+    },
+    {
       name: 'Sanciones',
       path: '/sanciones',
       icon: <Ban className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
+    },
+    {
+      name: 'Reservas',
+      path: '/reservas',
+      icon: <CalendarDays className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
+    },
+    {
+      name: 'Parqueadero',
+      path: '/parqueadero',
+      icon: <Car className="w-5 h-5" />,
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
     },
     {
@@ -151,22 +157,16 @@ export const MainLayout: React.FC = () => {
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
     },
     {
+      name: 'Mudanzas',
+      path: '/mudanzas',
+      icon: <Archive className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
+    },
+    {
       name: 'PQRS',
       path: '/pqrs',
       icon: <HelpCircle className="w-5 h-5" />,
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
-    },
-    {
-      name: 'Recibos Públicos',
-      path: '/recibos-publicos',
-      icon: <Lightbulb className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'Security', 'Resident'],
-    },
-    {
-      name: 'Gestión Usuarios',
-      path: '/usuarios',
-      icon: <Users className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin'],
     },
   ];
 
