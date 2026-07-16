@@ -65,3 +65,27 @@ export const showConfirm = async (title: string, text: string, confirmText = 'Ac
   });
   return result.isConfirmed;
 };
+
+export const showPrompt = async (title: string, text: string, defaultValue = ''): Promise<string | null> => {
+  const colors = getThemeColors();
+  const result = await Swal.fire({
+    title,
+    text,
+    input: 'text',
+    inputValue: defaultValue,
+    showCancelButton: true,
+    background: colors.background,
+    color: colors.color,
+    confirmButtonColor: colors.confirmButtonColor,
+    cancelButtonColor: colors.cancelButtonColor,
+    confirmButtonText: 'Aceptar',
+    cancelButtonText: 'Cancelar',
+    customClass: {
+      popup: 'rounded-2xl border border-slate-800 shadow-2xl animate-fade-in'
+    }
+  });
+  if (result.isConfirmed) {
+    return result.value ?? '';
+  }
+  return null;
+};

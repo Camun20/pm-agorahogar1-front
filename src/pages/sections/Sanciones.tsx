@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getFormattedNetworkDateOnly } from '../../utils/time';
 import { addNotification } from '../../utils/notifications';
+import { showPrompt } from '../../utils/alerts';
 import { 
   Ban, Search, Plus, CheckCircle, XCircle,
   Clock, Inbox, AlertCircle
@@ -385,8 +386,8 @@ export const Sanciones: React.FC = () => {
                           Rechazar
                         </button>
                         <button
-                          onClick={() => {
-                            const val = prompt('Ingresa el monto de la multa en COP si aplica (0 si es solo amonestación escrita):', '110000');
+                          onClick={async () => {
+                            const val = await showPrompt('Monto de la Multa', 'Ingresa el monto de la multa en COP si aplica (0 si es solo amonestación escrita):', '110000');
                             if (val !== null) {
                               handleApprove(s.id, parseInt(val) || 0);
                             }
