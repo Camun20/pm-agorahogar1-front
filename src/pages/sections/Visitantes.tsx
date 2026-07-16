@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getFormattedNetworkTime } from '../../utils/time';
+import { getFormattedNetworkTime, getFormattedNetworkDateOnly } from '../../utils/time';
 import { addNotification } from '../../utils/notifications';
 import { 
   Users, UserPlus, Calendar, Search, ShieldCheck, CheckCircle2,
@@ -111,7 +111,7 @@ export const Visitantes: React.FC = () => {
     e.preventDefault();
     setFormError(null);
 
-    if (!visitorName.trim() || !documentId.trim() || !scheduledDate) {
+    if (!visitorName.trim() || !documentId.trim() || (!isSecurity && !scheduledDate)) {
       setFormError('Por favor completa todos los campos obligatorios (*).');
       return;
     }
@@ -121,7 +121,7 @@ export const Visitantes: React.FC = () => {
       visitorName: visitorName.trim(),
       documentId: documentId.trim(),
       plate: plate.trim() || undefined,
-      scheduledDate,
+      scheduledDate: isSecurity ? getFormattedNetworkDateOnly() : scheduledDate,
       // If resident: auto-fill their info. If security: use inputs.
       residentName: isSecurity ? residentNameInput.trim() || 'No especificado' : user?.name || '',
       location: isSecurity ? locationInput.trim() || 'No especificado' : user?.location || '',
@@ -304,17 +304,19 @@ export const Visitantes: React.FC = () => {
               </div>
             ) : null}
 
-            <div className="space-y-1.5">
-              <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Programada *</label>
-              <input
-                type="date"
-                value={scheduledDate}
-                onChange={(e) => setScheduledDate(e.target.value)}
-                onClick={(e) => e.currentTarget.showPicker()}
-                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
-                required
-              />
-            </div>
+            {!isSecurity && (
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Programada *</label>
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker()}
+                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                  required={!isSecurity}
+                />
+              </div>
+            )}
 
             {formError && (
               <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs">
