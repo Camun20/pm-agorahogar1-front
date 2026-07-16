@@ -159,6 +159,7 @@ export const Visitantes: React.FC = () => {
           slotId: parkingSlot.trim().toUpperCase(),
           plate: plate.trim().toUpperCase(),
           brandModel: vehicleDescription.trim(),
+          visitorName: visitorName.trim(),
           locationVisited: locationInput.trim(),
           residentVisited: residentNameInput.trim() || 'No especificado',
           arrivalTime: getFormattedNetworkTime(),

@@ -21,6 +21,7 @@ interface VisitorVehicle {
   brandModel: string;
   locationVisited: string; // Apto
   residentVisited: string;
+  visitorName?: string;
   arrivalTime: string;
   departureTime?: string;
   status: 'Activo' | 'Salida';
@@ -87,6 +88,7 @@ export const Parqueadero: React.FC = () => {
         brandModel: 'Chevrolet Spark Azul',
         locationVisited: 'Torre 3 - Apto 402',
         residentVisited: 'Diana Carolina Ruiz',
+        visitorName: 'Juan Carlos Pérez',
         arrivalTime: '2026-07-14 09:20 AM',
         status: 'Activo'
       },
@@ -97,6 +99,7 @@ export const Parqueadero: React.FC = () => {
         brandModel: 'Kia Picanto Rojo',
         locationVisited: 'Portería Principal - Admin Office',
         residentVisited: 'Ana María Gómez',
+        visitorName: 'Martha Lucía Gómez',
         arrivalTime: '2026-07-14 07:15 AM',
         departureTime: '2026-07-14 08:30 AM',
         status: 'Salida'
@@ -427,7 +430,7 @@ export const Parqueadero: React.FC = () => {
                 </div>
               )}
 
-              {((activeTab === 'resident' && isAdmin) || (activeTab === 'visitor' && isSecurity)) && (
+              {(activeTab === 'resident' && isAdmin) && (
                 <button
                   onClick={() => setShowAddForm(true)}
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition cursor-pointer"
@@ -483,6 +486,7 @@ export const Parqueadero: React.FC = () => {
                     <th className="px-5 py-3.5">Espacio de Parqueo</th>
                     <th className="px-5 py-3.5">Placa</th>
                     <th className="px-5 py-3.5">Vehículo</th>
+                    <th className="px-5 py-3.5">Visitante</th>
                     <th className="px-5 py-3.5">Visitado / Apto</th>
                     <th className="px-5 py-3.5">Entrada / Salida</th>
                     {isSecurity && subTab === 'active' && <th className="px-5 py-3.5 text-right">Acción</th>}
@@ -494,9 +498,10 @@ export const Parqueadero: React.FC = () => {
                       <tr key={c.id} className="hover:bg-slate-900/30 transition-colors">
                         <td className="px-5 py-4 font-mono font-bold text-amber-500">{c.slotId}</td>
                         <td className="px-5 py-4 font-mono text-xs text-slate-200">{c.plate}</td>
-                        <td className="px-5 py-4 text-slate-300">{c.brandModel}</td>
+                        <td className="px-5 py-4 text-slate-300 text-xs">{c.brandModel}</td>
+                        <td className="px-5 py-4 text-slate-200 font-semibold">{c.visitorName || 'No registrado'}</td>
                         <td className="px-5 py-4">
-                          <div className="text-slate-300 font-medium">{c.residentVisited}</div>
+                          <div className="text-slate-350">{c.residentVisited}</div>
                           <div className="text-xxs text-slate-500">{c.locationVisited}</div>
                         </td>
                         <td className="px-5 py-4 text-xs text-slate-400">
@@ -526,7 +531,7 @@ export const Parqueadero: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={isSecurity && subTab === 'active' ? 6 : 5} className="px-5 py-12 text-center text-slate-500">
+                      <td colSpan={isSecurity && subTab === 'active' ? 7 : 6} className="px-5 py-12 text-center text-slate-500">
                         <Inbox className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                         No hay vehículos de visitantes registrados en esta categoría.
                       </td>

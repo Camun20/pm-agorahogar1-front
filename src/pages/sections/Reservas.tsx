@@ -508,20 +508,20 @@ export const Reservas: React.FC = () => {
 
                 {/* Real-time Dynamic Payment Breakdown */}
                 {selectedSpaceId && (
-                  <div className="p-4 bg-indigo-950/30 border border-indigo-500/20 rounded-xl space-y-2 text-xs">
+                  <div className="p-4 bg-purple-50 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-900/40 rounded-xl space-y-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Tarifa por Hora:</span>
-                      <span className="text-slate-200 font-bold">
+                      <span className="text-purple-700 dark:text-purple-300">Tarifa por Hora:</span>
+                      <span className="text-purple-950 dark:text-purple-200 font-bold">
                         {getSelectedSpaceCost() > 0 ? `$${getSelectedSpaceCost().toLocaleString()} COP` : 'Gratuito'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Duración:</span>
-                      <span className="text-slate-200 font-bold">{getHoursCount()} hora(s)</span>
+                      <span className="text-purple-700 dark:text-purple-300">Duración:</span>
+                      <span className="text-purple-950 dark:text-purple-200 font-bold">{getHoursCount()} hora(s)</span>
                     </div>
-                    <div className="flex justify-between border-t border-slate-800/60 pt-2 text-sm font-extrabold">
-                      <span className="text-indigo-400">Total a Pagar:</span>
-                      <span className="text-indigo-400 font-mono">
+                    <div className="flex justify-between border-t border-purple-200/80 dark:border-purple-850 pt-2 text-sm font-extrabold">
+                      <span className="text-purple-800 dark:text-purple-300">Total a Pagar:</span>
+                      <span className="text-purple-700 dark:text-purple-400 font-mono">
                         {getHoursCount() * getSelectedSpaceCost() > 0 
                           ? `$${(getHoursCount() * getSelectedSpaceCost()).toLocaleString()} COP`
                           : 'Gratuito'}
