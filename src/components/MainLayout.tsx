@@ -3,9 +3,9 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, type UserRole } from '../context/AuthContext';
 import { getNotifications, markAllNotificationsAsRead } from '../utils/notifications';
 import {
-  Menu, X, Bell, MessageSquare, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight,
+  Menu, X, Bell, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight,
   ClipboardList, Users, Truck, DollarSign, FileSpreadsheet, HelpCircle,
-  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Send, Key, Sun, Moon
+  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Key, Sun, Moon
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -67,19 +67,11 @@ export const MainLayout: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  
   // Estados para el modal "Ver Perfil"
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
-  
-  // Mensajes de prueba del chat rápido
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, sender: 'admin', text: 'Hola, ¿en qué podemos ayudarte hoy?', time: '10:30 AM' },
-  ]);
-  const [newMessage, setNewMessage] = useState('');
 
   // Definición de las 13 secciones y su control de acceso (RBAC)
   // Nota: El frontend lee el grupo de Cognito del token JWT mapeado en user.role
@@ -186,24 +178,7 @@ export const MainLayout: React.FC = () => {
     navigate('/login');
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
 
-    setChatMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, sender: 'user', text: newMessage, time: 'Ahora' },
-    ]);
-    setNewMessage('');
-    
-    // Auto responder simulado
-    setTimeout(() => {
-      setChatMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, sender: 'admin', text: 'Entendido. Procesaremos tu solicitud a la brevedad.', time: 'Ahora' },
-      ]);
-    }, 1500);
-  };
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans">
@@ -376,7 +351,6 @@ export const MainLayout: React.FC = () => {
                 onClick={() => {
                   setIsNotificationsOpen(!isNotificationsOpen);
                   setIsProfileOpen(false);
-                  setIsChatOpen(false);
                 }}
                 className={`p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition relative cursor-pointer ${
                   isNotificationsOpen ? 'bg-slate-800 text-white' : ''
@@ -425,76 +399,7 @@ export const MainLayout: React.FC = () => {
               )}
             </div>
 
-            {/* 2. CHAT / MESSAGES FLYOUT */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setIsChatOpen(!isChatOpen);
-                  setIsNotificationsOpen(false);
-                  setIsProfileOpen(false);
-                }}
-                className={`p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition relative cursor-pointer ${
-                  isChatOpen ? 'bg-slate-800 text-white' : ''
-                }`}
-              >
-                <MessageSquare className="w-5 h-5" />
-              </button>
 
-              {isChatOpen && (
-                <div className="absolute right-[-60px] sm:right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden h-96 animate-fade-in">
-                  <div className="bg-slate-800/80 px-4 py-3 border-b border-slate-700/60 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-                      <span className="font-semibold text-slate-200 text-sm">Administración en línea</span>
-                    </div>
-                    <button 
-                      onClick={() => setIsChatOpen(false)}
-                      className="text-slate-400 hover:text-slate-200"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                  {/* Messages log */}
-                  <div className="flex-1 p-3 overflow-y-auto space-y-2.5 bg-slate-950/40">
-                    {chatMessages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex flex-col max-w-[80%] ${
-                          msg.sender === 'user' ? 'ml-auto items-end' : 'items-start'
-                        }`}
-                      >
-                        <div
-                          className={`px-3 py-2 rounded-xl text-xs ${
-                            msg.sender === 'user'
-                              ? 'bg-indigo-600 text-white rounded-br-none'
-                              : 'bg-slate-800 text-slate-200 rounded-bl-none'
-                          }`}
-                        >
-                          {msg.text}
-                        </div>
-                        <span className="text-[9px] text-slate-500 mt-1 px-1">{msg.time}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Sender inputs */}
-                  <form onSubmit={handleSendMessage} className="p-2 border-t border-slate-800 bg-slate-900/90 flex gap-2">
-                    <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Escribe un mensaje..."
-                      className="flex-1 bg-slate-950/80 border border-slate-800 text-xs px-3 py-2 rounded-lg outline-none text-slate-100 placeholder-slate-600 focus:border-indigo-500"
-                    />
-                    <button
-                      type="submit"
-                      className="p-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white transition flex items-center justify-center shrink-0 cursor-pointer"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                    </button>
-                  </form>
-                </div>
-              )}
-            </div>
 
             {/* 3. USER PROFILE AVATAR WITH DROPDOWN */}
             <div className="relative">
@@ -502,7 +407,6 @@ export const MainLayout: React.FC = () => {
                 onClick={() => {
                   setIsProfileOpen(!isProfileOpen);
                   setIsNotificationsOpen(false);
-                  setIsChatOpen(false);
                 }}
                 className={`flex items-center gap-1.5 p-1 rounded-full border border-slate-800 hover:border-slate-700 hover:bg-slate-800/40 transition cursor-pointer ${
                   isProfileOpen ? 'border-indigo-500 bg-slate-800' : ''

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { showSuccess } from '../../utils/alerts';
+import { showSuccess, showConfirm } from '../../utils/alerts';
 import { 
   FileSpreadsheet, Search, Plus, Download, FileText, Calendar,
-  AlertCircle, Inbox
+  AlertCircle, Inbox, Trash2
 } from 'lucide-react';
 
 interface StatementFile {
@@ -13,11 +13,13 @@ interface StatementFile {
   uploadedAt: string;
   fileSize: string;
   uploaderName: string;
+  residentLocation: string; // casa/apto del residente
 }
 
 export const EstadosCuenta: React.FC = () => {
-  const { user } = useAuth();
+  const { user, users } = useAuth();
   const isBillingStaff = user?.role === 'SuperAdmin' || user?.role === 'ResidentialAdmin' || user?.role === 'Accounting';
+  const residents = users.filter(u => u.role === 'Resident');
 
   // States
   const [statements, setStatements] = useState<StatementFile[]>([]);
@@ -28,6 +30,7 @@ export const EstadosCuenta: React.FC = () => {
   const [fileName, setFileName] = useState('');
   const [monthInput, setMonthInput] = useState('');
   const [fileSizeInput, setFileSizeInput] = useState('1.2 MB');
+  const [residentLocationInput, setResidentLocationInput] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,7 +42,8 @@ export const EstadosCuenta: React.FC = () => {
         month: 'Junio 2026',
         uploadedAt: '2026-07-05 10:20 AM',
         fileSize: '2.4 MB',
-        uploaderName: 'Mauricio Restrepo (Contador)'
+        uploaderName: 'Mauricio Restrepo (Contador)',
+        residentLocation: 'Torre 3 - Apto 402'
       },
       {
         id: 'st_2',
@@ -47,7 +51,8 @@ export const EstadosCuenta: React.FC = () => {
         month: 'Junio 2026',
         uploadedAt: '2026-07-06 14:15 PM',
         fileSize: '890 KB',
-        uploaderName: 'Mauricio Restrepo (Contador)'
+        uploaderName: 'Mauricio Restrepo (Contador)',
+        residentLocation: 'Torre 3 - Apto 402'
       },
       {
         id: 'st_3',
@@ -55,7 +60,8 @@ export const EstadosCuenta: React.FC = () => {
         month: 'Mayo 2026',
         uploadedAt: '2026-06-10 11:00 AM',
         fileSize: '4.1 MB',
-        uploaderName: 'Carlos Mendoza (Admin)'
+        uploaderName: 'Carlos Mendoza (Admin)',
+        residentLocation: 'Torre 3 - Apto 402'
       }
     ];
 
@@ -73,15 +79,21 @@ export const EstadosCuenta: React.FC = () => {
 
   const filteredStatements = statements.filter(s => {
     const term = searchTerm.toLowerCase();
-    return s.name.toLowerCase().includes(term) || s.month.toLowerCase().includes(term);
+    const matchesSearch = s.name.toLowerCase().includes(term) || s.month.toLowerCase().includes(term);
+
+    // Si es residente, solo ve sus estados de cuenta asociados a su casa/unidad
+    if (user?.role === 'Resident') {
+      return matchesSearch && s.residentLocation === user.location;
+    }
+    return matchesSearch;
   });
 
   const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
-    if (!fileName.trim() || !monthInput.trim()) {
-      setFormError('Por favor completa todos los campos del archivo.');
+    if (!fileName.trim() || !monthInput.trim() || !residentLocationInput.trim()) {
+      setFormError('Por favor completa todos los campos obligatorios (*).');
       return;
     }
 
@@ -91,7 +103,8 @@ export const EstadosCuenta: React.FC = () => {
       month: monthInput.trim(),
       uploadedAt: new Date().toLocaleString(),
       fileSize: fileSizeInput,
-      uploaderName: `${user?.name || 'Administración'} (${user?.role || 'Staff'})`
+      uploaderName: `${user?.name || 'Administración'} (${user?.role || 'Staff'})`,
+      residentLocation: residentLocationInput
     };
 
     const updated = [newStatement, ...statements];
@@ -102,7 +115,22 @@ export const EstadosCuenta: React.FC = () => {
     setFileName('');
     setMonthInput('');
     setFileSizeInput('1.2 MB');
+    setResidentLocationInput('');
     setActiveTab('list');
+  };
+
+  const handleDelete = async (statementId: string) => {
+    const isConfirmed = await showConfirm(
+      '¿Eliminar estado de cuenta?',
+      '¿Estás seguro de que deseas eliminar este estado de cuenta? Esta acción no se puede deshacer.',
+      'Sí, eliminar'
+    );
+    if (isConfirmed) {
+      const updated = statements.filter(s => s.id !== statementId);
+      setStatements(updated);
+      localStorage.setItem('lobbyapp_statements', JSON.stringify(updated));
+      showSuccess('Eliminado', 'El estado de cuenta ha sido eliminado con éxito.');
+    }
   };
 
   // Mock download trigger
@@ -171,6 +199,23 @@ export const EstadosCuenta: React.FC = () => {
                 className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
                 required
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs text-slate-400 uppercase font-semibold">Residente Destinatario (Casa/Apto) *</label>
+              <select
+                value={residentLocationInput}
+                onChange={(e) => setResidentLocationInput(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                required
+              >
+                <option value="">Seleccionar Residente...</option>
+                {residents.map(r => (
+                  <option key={r.username} value={r.location}>
+                    {r.location} - {r.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -268,18 +313,33 @@ export const EstadosCuenta: React.FC = () => {
                     <div className="space-y-1">
                       <h4 className="font-bold text-slate-200 text-sm line-clamp-2 leading-relaxed">{st.name}</h4>
                       <p className="text-[10px] text-slate-500">Cargado: {st.uploadedAt}</p>
+                      {isBillingStaff && (
+                        <p className="text-[10px] text-indigo-400/90 font-medium">Asignado: {st.residentLocation}</p>
+                      )}
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-900 mt-4 flex items-center justify-between">
-                    <span className="text-[9px] text-slate-600 truncate max-w-[120px]">{st.uploaderName}</span>
-                    <button
-                      onClick={() => handleDownload(st)}
-                      className="inline-flex items-center gap-1 py-1.5 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-indigo-400 hover:text-indigo-300 font-semibold text-xs rounded-xl transition cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Descargar
-                    </button>
+                  <div className="pt-4 border-t border-slate-900 mt-4 flex items-center justify-between gap-2">
+                    <span className="text-[9px] text-slate-600 truncate max-w-[90px]">{st.uploaderName}</span>
+                    <div className="flex gap-1.5 shrink-0">
+                      {isBillingStaff && (
+                        <button
+                          onClick={() => handleDelete(st.id)}
+                          className="inline-flex items-center gap-1 py-1.5 px-3 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 hover:text-red-300 font-semibold text-xs rounded-xl transition cursor-pointer"
+                          title="Eliminar Estado de Cuenta"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Eliminar
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDownload(st)}
+                        className="inline-flex items-center gap-1 py-1.5 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-indigo-400 hover:text-indigo-300 font-semibold text-xs rounded-xl transition cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Descargar
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))

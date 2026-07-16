@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { showSuccess } from '../../utils/alerts';
+import { showSuccess, showConfirm } from '../../utils/alerts';
 import { 
   FolderGit, Search, Plus, Download, FileText,
-  AlertCircle, Inbox
+  AlertCircle, Inbox, Trash2
 } from 'lucide-react';
 
 interface GeneralDocument {
@@ -26,7 +26,7 @@ export const Documentos: React.FC = () => {
 
   // Form State
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Reglamento');
+  const [category, setCategory] = useState('Reglamentos');
   const [fileSizeInput, setFileSizeInput] = useState('2.4 MB');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -100,9 +100,23 @@ export const Documentos: React.FC = () => {
 
     // Reset Form
     setTitle('');
-    setCategory('Reglamento');
+    setCategory('Reglamentos');
     setFileSizeInput('2.4 MB');
     setActiveTab('list');
+  };
+
+  const handleDelete = async (docId: string) => {
+    const isConfirmed = await showConfirm(
+      '¿Eliminar documento?',
+      '¿Estás seguro de que deseas eliminar este documento? Esta acción no se puede deshacer.',
+      'Sí, eliminar'
+    );
+    if (isConfirmed) {
+      const updated = docs.filter(doc => doc.id !== docId);
+      setDocs(updated);
+      localStorage.setItem('lobbyapp_documents', JSON.stringify(updated));
+      showSuccess('Eliminado', 'El documento ha sido eliminado con éxito.');
+    }
   };
 
   // Mock download trigger
@@ -272,15 +286,27 @@ export const Documentos: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-900 mt-4 flex items-center justify-between">
-                    <span className="text-[9px] text-slate-600 truncate max-w-[120px]">{doc.uploaderName}</span>
-                    <button
-                      onClick={() => handleDownload(doc)}
-                      className="inline-flex items-center gap-1 py-1.5 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-indigo-400 hover:text-indigo-300 font-semibold text-xs rounded-xl transition cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Descargar
-                    </button>
+                  <div className="pt-4 border-t border-slate-900 mt-4 flex items-center justify-between gap-2">
+                    <span className="text-[9px] text-slate-600 truncate max-w-[90px]">{doc.uploaderName}</span>
+                    <div className="flex gap-1.5 shrink-0">
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDelete(doc.id)}
+                          className="inline-flex items-center gap-1 py-1.5 px-3 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 hover:text-red-300 font-semibold text-xs rounded-xl transition cursor-pointer"
+                          title="Eliminar Documento"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Eliminar
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDownload(doc)}
+                        className="inline-flex items-center gap-1 py-1.5 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-indigo-400 hover:text-indigo-300 font-semibold text-xs rounded-xl transition cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Descargar
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
