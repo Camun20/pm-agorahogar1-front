@@ -219,6 +219,39 @@ export const Parqueadero: React.FC = () => {
     }
   };
 
+  const calculateParkingCharge = (arrivalStr: string, departureStr?: string) => {
+    try {
+      const cleanDateStr = (str: string) => {
+        let cleaned = str.replace(/a\.\s*m\./i, 'AM').replace(/p\.\s*m\./i, 'PM');
+        cleaned = cleaned.replace(/,\s*/, ' ');
+        const slashParts = cleaned.split(' ')[0].split('/');
+        if (slashParts.length === 3 && slashParts[2].length === 4) {
+          const timePart = cleaned.substring(cleaned.indexOf(' ') + 1);
+          cleaned = `${slashParts[2]}-${slashParts[1]}-${slashParts[0]} ${timePart}`;
+        }
+        return cleaned;
+      };
+
+      const arrivalClean = cleanDateStr(arrivalStr);
+      const departureClean = departureStr ? cleanDateStr(departureStr) : null;
+
+      const arrivalMs = new Date(arrivalClean).getTime();
+      const departureMs = departureClean ? new Date(departureClean).getTime() : Date.now();
+
+      if (isNaN(arrivalMs) || isNaN(departureMs)) return 2000;
+
+      const diffMs = departureMs - arrivalMs;
+      if (diffMs <= 0) return 2000;
+
+      const diffHours = diffMs / (1000 * 60 * 60);
+      const chargedHours = Math.max(1, Math.ceil(diffHours));
+
+      return chargedHours * 2000;
+    } catch (err) {
+      return 2000;
+    }
+  };
+
   // Filter lists based on Search, tab, and role
   const displayResidentCars = residentCars.filter(car => {
     if (!isAdmin && !isSecurity && car.location !== user?.location) {
@@ -448,7 +481,7 @@ export const Parqueadero: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-900/50 text-xs text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="px-5 py-3.5">Espacio de Parqueo</th>
+                    <th className="px-5 py-3.5">Espacio</th>
                     <th className="px-5 py-3.5">Placa</th>
                     <th className="px-5 py-3.5">Vehículo</th>
                     <th className="px-5 py-3.5">Propietario / Residente</th>
@@ -483,12 +516,13 @@ export const Parqueadero: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-900/50 text-xs text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="px-5 py-3.5">Espacio de Parqueo</th>
+                    <th className="px-5 py-3.5">Espacio</th>
                     <th className="px-5 py-3.5">Placa</th>
                     <th className="px-5 py-3.5">Vehículo</th>
                     <th className="px-5 py-3.5">Visitante</th>
                     <th className="px-5 py-3.5">Visitado / Apto</th>
                     <th className="px-5 py-3.5">Entrada / Salida</th>
+                    <th className="px-5 py-3.5">Cobro ($)</th>
                     {isSecurity && subTab === 'active' && <th className="px-5 py-3.5 text-right">Acción</th>}
                   </tr>
                 </thead>
@@ -516,6 +550,9 @@ export const Parqueadero: React.FC = () => {
                             </div>
                           )}
                         </td>
+                        <td className="px-5 py-4 text-xs font-semibold text-emerald-400 font-mono">
+                          ${calculateParkingCharge(c.arrivalTime, c.departureTime).toLocaleString()} COP
+                        </td>
                         {isSecurity && subTab === 'active' && (
                           <td className="px-5 py-4 text-right">
                             <button
@@ -531,7 +568,7 @@ export const Parqueadero: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={isSecurity && subTab === 'active' ? 7 : 6} className="px-5 py-12 text-center text-slate-500">
+                      <td colSpan={isSecurity && subTab === 'active' ? 8 : 7} className="px-5 py-12 text-center text-slate-500">
                         <Inbox className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                         No hay vehículos de visitantes registrados en esta categoría.
                       </td>
