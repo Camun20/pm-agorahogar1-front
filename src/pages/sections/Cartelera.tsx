@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { 
+import {
   Presentation, Search, Plus, CheckCircle, XCircle, Eye,
   Contact, MapPin, AlertCircle, Info, Inbox
 } from 'lucide-react';
 
 interface CarteleraAd {
   id: string;
-  title: string; // ej. Se vende licor / Peluquero a domicilio
+  title: string;
   description: string;
   contact: string;
   location: string;
@@ -171,32 +171,29 @@ export const Cartelera: React.FC = () => {
           <div className="flex flex-wrap gap-1.5">
             <button
               onClick={() => setActiveTab('board')}
-              className={`px-3.5 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer ${
-                activeTab === 'board'
+              className={`px-3.5 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer ${activeTab === 'board'
                   ? 'bg-indigo-600 border-indigo-500 text-white'
                   : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
-              }`}
+                }`}
             >
               Cartelera Pública
             </button>
             <button
               onClick={() => setActiveTab('my-ads')}
-              className={`px-3.5 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer ${
-                activeTab === 'my-ads'
+              className={`px-3.5 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer ${activeTab === 'my-ads'
                   ? 'bg-indigo-600 border-indigo-500 text-white'
                   : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
-              }`}
+                }`}
             >
               Mis Anuncios
             </button>
             {isAdmin && (
               <button
                 onClick={() => setActiveTab('moderate')}
-                className={`px-3.5 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer relative ${
-                  activeTab === 'moderate'
+                className={`px-3.5 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer relative ${activeTab === 'moderate'
                     ? 'bg-indigo-600 border-indigo-500 text-white'
                     : 'bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800/50'
-                }`}
+                  }`}
               >
                 Moderar
                 {ads.some(ad => ad.status === 'Pendiente') && (
@@ -209,7 +206,7 @@ export const Cartelera: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Left Side: Create / Moderate form / Information */}
         <div className="lg:col-span-1 space-y-6">
           {activeTab === 'my-ads' ? (
@@ -328,11 +325,10 @@ export const Cartelera: React.FC = () => {
                       </div>
                     </div>
 
-                    <span className={`px-2 py-0.5 rounded-full text-xxs font-bold border uppercase ${
-                      ad.status === 'Aprobado' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                      ad.status === 'Pendiente' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                      'bg-red-500/10 text-red-400 border-red-500/20'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xxs font-bold border uppercase ${ad.status === 'Aprobado' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        ad.status === 'Pendiente' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                          'bg-red-500/10 text-red-400 border-red-500/20'
+                      }`}>
                       {ad.status}
                     </span>
                   </div>
