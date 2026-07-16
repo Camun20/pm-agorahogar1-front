@@ -34,6 +34,7 @@ export const Visitantes: React.FC = () => {
   const [documentId, setDocumentId] = useState('');
   const [plate, setPlate] = useState('');
   const [vehicleDescription, setVehicleDescription] = useState('');
+  const [parkingSlot, setParkingSlot] = useState('');
   const [scheduledDate, setScheduledDate] = useState('');
   
   // Security Form addition: resident name and unit
@@ -119,10 +120,16 @@ export const Visitantes: React.FC = () => {
       return;
     }
 
-    // Require vehicle description if plate is entered
-    if (plate.trim() !== '' && !vehicleDescription.trim()) {
-      setFormError('Por favor ingresa la descripción del vehículo (ej: Kia Rojo).');
-      return;
+    // Require vehicle description and parking slot if plate is entered
+    if (plate.trim() !== '') {
+      if (!vehicleDescription.trim()) {
+        setFormError('Por favor ingresa la descripción del vehículo (ej: Kia Rojo).');
+        return;
+      }
+      if (!parkingSlot.trim()) {
+        setFormError('Por favor ingresa el espacio de parqueo (ej: V-04).');
+        return;
+      }
     }
 
     const newVisit: Visit = {
@@ -146,13 +153,10 @@ export const Visitantes: React.FC = () => {
       try {
         const savedVis = localStorage.getItem('lobbyapp_park_visitor');
         const visitorCars = savedVis ? JSON.parse(savedVis) : [];
-        const activeSlots = visitorCars.filter((p: any) => p.status === 'Activo').map((p: any) => p.slotId);
-        const allSlots = ['V-01', 'V-02', 'V-03', 'V-04', 'V-05', 'V-06', 'V-07', 'V-08', 'V-09', 'V-10'];
-        const freeSlot = allSlots.find(s => !activeSlots.includes(s)) || 'V-Gen';
 
         const newVehicle = {
           id: `vv_${Date.now()}`,
-          slotId: freeSlot,
+          slotId: parkingSlot.trim().toUpperCase(),
           plate: plate.trim().toUpperCase(),
           brandModel: vehicleDescription.trim(),
           locationVisited: locationInput.trim(),
@@ -173,6 +177,7 @@ export const Visitantes: React.FC = () => {
     setDocumentId('');
     setPlate('');
     setVehicleDescription('');
+    setParkingSlot('');
     setScheduledDate('');
     setResidentNameInput('');
     setLocationInput('');
@@ -333,18 +338,31 @@ export const Visitantes: React.FC = () => {
               </div>
             </div>
 
-            {/* Conditionally show Vehicle description input if plate is entered */}
+            {/* Conditionally show Vehicle description and space if plate is entered */}
             {plate.trim() !== '' && (
-              <div className="space-y-1.5 animate-fade-in">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Descripción del Vehículo (Modelo/Color/Marca) *</label>
-                <input
-                  type="text"
-                  value={vehicleDescription}
-                  onChange={(e) => setVehicleDescription(e.target.value)}
-                  placeholder="ej. Kia Rojo"
-                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 uppercase font-semibold">Descripción del Vehículo *</label>
+                  <input
+                    type="text"
+                    value={vehicleDescription}
+                    onChange={(e) => setVehicleDescription(e.target.value)}
+                    placeholder="ej. Kia Rojo"
+                    className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 uppercase font-semibold">Espacio de Parqueo *</label>
+                  <input
+                    type="text"
+                    value={parkingSlot}
+                    onChange={(e) => setParkingSlot(e.target.value)}
+                    placeholder="ej. V-04"
+                    className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 font-mono"
+                    required
+                  />
+                </div>
               </div>
             )}
 

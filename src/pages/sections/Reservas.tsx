@@ -5,14 +5,14 @@ import { addNotification } from '../../utils/notifications';
 import { showError } from '../../utils/alerts';
 import { 
   CalendarDays, Plus, CheckCircle2, XCircle, Clock,
-  MapPin, AlertCircle, Calendar, Check, Inbox
+  MapPin, AlertCircle, Calendar, Check, Inbox, DollarSign
 } from 'lucide-react';
 
 interface BookableSpace {
   id: string;
   name: string; // ej. Salón Social, BBQ, Cancha de Tenis
   description: string;
-  cost: number;
+  cost: number; // Cost per hour
 }
 
 interface Reservation {
@@ -46,7 +46,10 @@ export const Reservas: React.FC = () => {
   // New Reservation Request State (Resident)
   const [selectedSpaceId, setSelectedSpaceId] = useState('');
   const [reserveDate, setReserveDate] = useState('');
-  const [reserveTimeSlot, setReserveTimeSlot] = useState('14:00 - 18:00');
+  
+  // Manual Hour range state variables
+  const [startTime, setStartTime] = useState('14:00');
+  const [endTime, setEndTime] = useState('18:00');
   
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
@@ -55,8 +58,8 @@ export const Reservas: React.FC = () => {
     // Seed spaces
     const savedSpaces = localStorage.getItem('lobbyapp_reserve_spaces');
     const initialSpaces: BookableSpace[] = [
-      { id: 'sp_1', name: 'Salón Social Principal', description: 'Capacidad para 80 personas, incluye cocina y baños.', cost: 80000 },
-      { id: 'sp_2', name: 'Zona BBQ - Parrilla A', description: 'Capacidad para 15 personas, incluye parrilla y carbón.', cost: 30000 },
+      { id: 'sp_1', name: 'Salón Social Principal', description: 'Capacidad para 80 personas, incluye cocina y baños.', cost: 15000 },
+      { id: 'sp_2', name: 'Zona BBQ - Parrilla A', description: 'Capacidad para 15 personas, incluye parrilla y carbón.', cost: 8000 },
       { id: 'sp_3', name: 'Cancha de Squash 1', description: 'Uso por turnos de 1 hora max. Obligatorio calzado adecuado.', cost: 0 }
     ];
 
@@ -128,16 +131,26 @@ export const Reservas: React.FC = () => {
     setFormError(null);
     setFormSuccess(null);
 
-    if (!selectedSpaceId || !reserveDate || !reserveTimeSlot) {
+    if (!selectedSpaceId || !reserveDate || !startTime || !endTime) {
       setFormError('Por favor completa todos los campos.');
       return;
     }
+
+    const startH = parseInt(startTime.split(':')[0]);
+    const endH = parseInt(endTime.split(':')[0]);
+
+    if (endH <= startH) {
+      setFormError('La hora de fin debe ser posterior a la hora de inicio.');
+      return;
+    }
+
+    const calculatedTimeSlot = `${startTime} - ${endTime}`;
 
     // Collision Check: check if there's an Approved reservation for the same space, date, and slot
     const hasCollision = reservations.some(
       r => r.spaceId === selectedSpaceId && 
            r.date === reserveDate && 
-           r.timeSlot === reserveTimeSlot && 
+           r.timeSlot === calculatedTimeSlot && 
            r.status === 'Aprobada'
     );
 
@@ -153,7 +166,7 @@ export const Reservas: React.FC = () => {
       spaceId: selectedSpaceId,
       spaceName: spaceObj?.name || 'Espacio común',
       date: reserveDate,
-      timeSlot: reserveTimeSlot,
+      timeSlot: calculatedTimeSlot,
       residentName: user?.name || 'Residente',
       location: user?.location || 'Apto',
       status: 'Pendiente',
@@ -179,6 +192,8 @@ export const Reservas: React.FC = () => {
     setFormSuccess('Solicitud de reserva enviada con éxito. Pendiente de aprobación por administración.');
     setSelectedSpaceId('');
     setReserveDate('');
+    setStartTime('14:00');
+    setEndTime('18:00');
     setTimeout(() => {
       setActiveTab('calendar');
       setFormSuccess(null);
@@ -239,6 +254,32 @@ export const Reservas: React.FC = () => {
     });
     setReservations(updated);
     localStorage.setItem('lobbyapp_reservations', JSON.stringify(updated));
+  };
+
+  const getReservationTotal = (res: Reservation) => {
+    const spaceObj = spaces.find(s => s.id === res.spaceId);
+    if (!spaceObj || spaceObj.cost === 0) return 'Gratuito';
+    try {
+      const [startStr, endStr] = res.timeSlot.split(' - ');
+      const startH = parseInt(startStr.split(':')[0]);
+      const endH = parseInt(endStr.split(':')[0]);
+      const hours = Math.max(0, endH - startH);
+      return `$${(hours * spaceObj.cost).toLocaleString()} COP`;
+    } catch {
+      return `$${spaceObj.cost.toLocaleString()} COP`;
+    }
+  };
+
+  // Calculations for live booking cost feedback
+  const getSelectedSpaceCost = () => {
+    const selectedSpace = spaces.find(s => s.id === selectedSpaceId);
+    return selectedSpace ? selectedSpace.cost : 0;
+  };
+
+  const getHoursCount = () => {
+    const startH = parseInt(startTime.split(':')[0]);
+    const endH = parseInt(endTime.split(':')[0]);
+    return Math.max(0, endH - startH);
   };
 
   // Filter lists depending on tab and role
@@ -341,7 +382,7 @@ export const Reservas: React.FC = () => {
                     value={spaceName}
                     onChange={(e) => setSpaceName(e.target.value)}
                     placeholder="ej. Cancha de Tenis B"
-                    className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
+                    className="w-full px-3 py-1.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
                     required
                   />
                 </div>
@@ -351,19 +392,19 @@ export const Reservas: React.FC = () => {
                     type="text"
                     value={spaceDesc}
                     onChange={(e) => setSpaceDesc(e.target.value)}
-                    placeholder="ej. Reserva max 2 horas..."
-                    className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
+                    placeholder="ej. Reserva de canchas comunes..."
+                    className="w-full px-3 py-1.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
                     required
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 uppercase font-semibold">Costo Reserva ($ COP)</label>
+                  <label className="text-[10px] text-slate-400 uppercase font-semibold">Costo por Hora ($ COP)</label>
                   <input
                     type="number"
                     value={spaceCost || ''}
                     onChange={(e) => setSpaceCost(parseInt(e.target.value) || 0)}
                     placeholder="0 si es gratuito"
-                    className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
+                    className="w-full px-3 py-1.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
                   />
                 </div>
                 <button
@@ -381,7 +422,7 @@ export const Reservas: React.FC = () => {
                     <div className="flex justify-between items-center text-xs font-bold text-slate-200">
                       <span>{s.name}</span>
                       <span className="text-indigo-400 font-mono text-[10px]">
-                        {s.cost > 0 ? `$${s.cost.toLocaleString()}` : 'Gratuito'}
+                        {s.cost > 0 ? `$${s.cost.toLocaleString()}/Hora` : 'Gratuito'}
                       </span>
                     </div>
                     <p className="text-[10px] text-slate-500 leading-relaxed">{s.description}</p>
@@ -408,12 +449,12 @@ export const Reservas: React.FC = () => {
                   <select
                     value={selectedSpaceId}
                     onChange={(e) => setSelectedSpaceId(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100 cursor-pointer"
+                    className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100 cursor-pointer"
                     required
                   >
                     <option value="">-- Elige un espacio --</option>
                     {spaces.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} ({s.cost > 0 ? `$${s.cost.toLocaleString()}` : 'Gratuito'})</option>
+                      <option key={s.id} value={s.id}>{s.name} ({s.cost > 0 ? `$${s.cost.toLocaleString()}/Hora` : 'Gratuito'})</option>
                     ))}
                   </select>
                 </div>
@@ -430,35 +471,61 @@ export const Reservas: React.FC = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs text-slate-400 uppercase font-semibold block">Horario Requerido *</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {[
-                      { value: '08:00 - 10:00', label: '08:00 AM - 10:00 AM', desc: 'Mañana Temprana' },
-                      { value: '10:00 - 12:00', label: '10:00 AM - 12:00 PM', desc: 'Media Mañana' },
-                      { value: '12:00 - 14:00', label: '12:00 PM - 02:00 PM', desc: 'Mediodía' },
-                      { value: '14:00 - 18:00', label: '02:00 PM - 06:00 PM', desc: 'Tarde' },
-                      { value: '18:00 - 22:00', label: '06:00 PM - 10:00 PM', desc: 'Noche' }
-                    ].map((slot) => {
-                      const isSelected = reserveTimeSlot === slot.value;
-                      return (
-                        <button
-                          key={slot.value}
-                          type="button"
-                          onClick={() => setReserveTimeSlot(slot.value)}
-                          className={`p-3 border rounded-xl text-left transition-all hover:scale-[1.01] cursor-pointer flex flex-col justify-between ${
-                            isSelected
-                              ? 'bg-indigo-600/10 border-indigo-500 text-white ring-1 ring-indigo-500'
-                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <span className="text-[9px] font-bold text-indigo-400 uppercase">{slot.desc}</span>
-                          <span className="text-xs font-semibold mt-1">{slot.label}</span>
-                        </button>
-                      );
-                    })}
+                {/* Manual Hour selectors side-by-side */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-slate-400 uppercase font-semibold">Hora de Inicio *</label>
+                    <select
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100 cursor-pointer"
+                      required
+                    >
+                      {Array.from({ length: 17 }, (_, i) => {
+                        const h = (i + 6).toString().padStart(2, '0');
+                        return <option key={h} value={`${h}:00`}>{`${h}:00`}</option>;
+                      })}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-slate-400 uppercase font-semibold">Hora de Fin *</label>
+                    <select
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100 cursor-pointer"
+                      required
+                    >
+                      {Array.from({ length: 17 }, (_, i) => {
+                        const h = (i + 7).toString().padStart(2, '0');
+                        return <option key={h} value={`${h}:00`}>{`${h}:00`}</option>;
+                      })}
+                    </select>
                   </div>
                 </div>
+
+                {/* Real-time Dynamic Payment Breakdown */}
+                {selectedSpaceId && (
+                  <div className="p-4 bg-slate-950/65 border border-slate-800/80 rounded-xl space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Tarifa por Hora:</span>
+                      <span className="text-slate-200 font-bold">
+                        {getSelectedSpaceCost() > 0 ? `$${getSelectedSpaceCost().toLocaleString()} COP` : 'Gratuito'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Duración:</span>
+                      <span className="text-slate-200 font-bold">{getHoursCount()} hora(s)</span>
+                    </div>
+                    <div className="flex justify-between border-t border-slate-800/60 pt-2 text-sm font-extrabold">
+                      <span className="text-indigo-400">Total a Pagar:</span>
+                      <span className="text-indigo-400 font-mono">
+                        {getHoursCount() * getSelectedSpaceCost() > 0 
+                          ? `$${(getHoursCount() * getSelectedSpaceCost()).toLocaleString()} COP`
+                          : 'Gratuito'}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {formError && (
                   <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs animate-shake">
@@ -511,7 +578,7 @@ export const Reservas: React.FC = () => {
                           </span>
                         </div>
 
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-400">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3.5 h-3.5 text-slate-500" />
                             {res.date}
@@ -519,6 +586,10 @@ export const Reservas: React.FC = () => {
                           <span className="flex items-center gap-1">
                             <Clock className="w-3.5 h-3.5 text-slate-500" />
                             {res.timeSlot}
+                          </span>
+                          <span className="flex items-center gap-1 font-semibold text-indigo-400">
+                            <DollarSign className="w-3.5 h-3.5 text-slate-500" />
+                            Costo Total: {getReservationTotal(res)}
                           </span>
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3.5 h-3.5 text-slate-500" />

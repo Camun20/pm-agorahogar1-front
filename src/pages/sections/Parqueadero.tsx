@@ -266,15 +266,16 @@ export const Parqueadero: React.FC = () => {
           </h2>
           
           <form onSubmit={activeTab === 'resident' ? handleRegisterResidentCar : handleRegisterVisitorCar} className="space-y-4">
+            {/* Row 1: Space & Plate */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 uppercase font-semibold">Cajón de Parqueadero *</label>
+                <label className="text-xs text-slate-400 uppercase font-semibold">Espacio de Parqueo *</label>
                 <input
                   type="text"
                   value={slotId}
                   onChange={(e) => setSlotId(e.target.value)}
                   placeholder={activeTab === 'resident' ? 'ej. P-204' : 'ej. V-02'}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
                   required
                 />
               </div>
@@ -285,11 +286,14 @@ export const Parqueadero: React.FC = () => {
                   value={plate}
                   onChange={(e) => setPlate(e.target.value)}
                   placeholder="ej. XYZ-890"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
                   required
                 />
               </div>
-                  <div className="space-y-1.5">
+            </div>
+
+            {/* Row 2: Brand, Model & Color (Full Width) */}
+            <div className="space-y-1.5">
               <label className="text-xs text-slate-400 uppercase font-semibold">Marca, Modelo & Color *</label>
               <input
                 type="text"
@@ -301,7 +305,8 @@ export const Parqueadero: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Row 3: Location & Resident (Grid Cols 2) */}
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-800/60">
               <div className="space-y-1.5">
                 <label className="text-xs text-slate-400 uppercase font-semibold">Ubicación / Apto *</label>
                 <select
@@ -315,7 +320,7 @@ export const Parqueadero: React.FC = () => {
                   className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
                   required
                 >
-                  <option value="">-- Selecciona Apartamento --</option>
+                  <option value="">-- Selecciona --</option>
                   {users.filter(u => u.role === 'Resident' && u.location).map(r => (
                     <option key={r.username} value={r.location}>{r.location}</option>
                   ))}
@@ -328,10 +333,10 @@ export const Parqueadero: React.FC = () => {
                   value={resName}
                   readOnly
                   placeholder="Auto-completado"
-                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 text-slate-400 rounded-xl outline-none text-sm cursor-not-allowed"
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 text-slate-450 rounded-xl outline-none text-sm cursor-not-allowed"
                 />
               </div>
-            </div>          </div>
+            </div>
 
             {formError && (
               <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs">
@@ -414,7 +419,7 @@ export const Parqueadero: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-900/50 text-xs text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="px-5 py-3.5">Cajón</th>
+                    <th className="px-5 py-3.5">Espacio de Parqueo</th>
                     <th className="px-5 py-3.5">Placa</th>
                     <th className="px-5 py-3.5">Vehículo</th>
                     <th className="px-5 py-3.5">Propietario / Residente</th>
@@ -449,7 +454,7 @@ export const Parqueadero: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-900/50 text-xs text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="px-5 py-3.5">Cajón Visitante</th>
+                    <th className="px-5 py-3.5">Espacio de Parqueo</th>
                     <th className="px-5 py-3.5">Placa</th>
                     <th className="px-5 py-3.5">Vehículo</th>
                     <th className="px-5 py-3.5">Visitado / Apto</th>
