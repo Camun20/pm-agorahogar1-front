@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getFormattedNetworkDateOnly } from '../../utils/time';
+import { addNotification } from '../../utils/notifications';
 import { 
   CalendarDays, Plus, CheckCircle2, XCircle, Clock,
   MapPin, AlertCircle, Calendar, Check, Inbox
@@ -158,6 +159,18 @@ export const Reservas: React.FC = () => {
       createdAt: getFormattedNetworkDateOnly()
     };
 
+    // Dispatch notifications to admins
+    addNotification(
+      'Nueva Solicitud de Reserva 📅',
+      `El apto ${newRes.location} solicita reservar ${newRes.spaceName} para el ${newRes.date} (${newRes.timeSlot}).`,
+      { role: 'ResidentialAdmin' }
+    );
+    addNotification(
+      'Nueva Solicitud de Reserva 📅',
+      `El apto ${newRes.location} solicita reservar ${newRes.spaceName} para el ${newRes.date} (${newRes.timeSlot}).`,
+      { role: 'SuperAdmin' }
+    );
+
     const updated = [newRes, ...reservations];
     setReservations(updated);
     localStorage.setItem('lobbyapp_reservations', JSON.stringify(updated));
@@ -189,6 +202,13 @@ export const Reservas: React.FC = () => {
       return;
     }
 
+    // Dispatch Resident Notification
+    addNotification(
+      'Reserva Aprobada ✅',
+      `Tu reserva de ${target.spaceName} para el ${target.date} ha sido APROBADA.`,
+      { location: target.location }
+    );
+
     const updated = reservations.map(r => {
       if (r.id === resId) {
         return { ...r, status: 'Aprobada' as const };
@@ -200,6 +220,16 @@ export const Reservas: React.FC = () => {
   };
 
   const handleReject = (resId: string) => {
+    const target = reservations.find(r => r.id === resId);
+    if (target) {
+      // Dispatch Resident Notification
+      addNotification(
+        'Reserva Rechazada ❌',
+        `Tu reserva de ${target.spaceName} para el ${target.date} ha sido RECHAZADA.`,
+        { location: target.location }
+      );
+    }
+
     const updated = reservations.map(r => {
       if (r.id === resId) {
         return { ...r, status: 'Rechazada' as const };

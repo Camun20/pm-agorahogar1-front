@@ -4,6 +4,8 @@ import {
   HelpCircle, Search, Plus, MessageSquare, CheckCircle, Clock,
   ArrowUpRight, AlertCircle, Info, Inbox
 } from 'lucide-react';
+import { getFormattedNetworkTime } from '../../utils/time';
+import { addNotification } from '../../utils/notifications';
 
 interface PqrsMessage {
   id: string;
@@ -103,8 +105,20 @@ export const PQRS: React.FC = () => {
       residentName: user?.name || 'Residente',
       location: user?.location || 'No especificado',
       status: 'Abierto',
-      registeredAt: new Date().toLocaleString()
+      registeredAt: getFormattedNetworkTime()
     };
+
+    // Notify Admins
+    addNotification(
+      'Nueva PQRS Radicada 📩',
+      `El apto ${newPqrs.location} ha radicado una ${newPqrs.type} sobre: "${newPqrs.subject}".`,
+      { role: 'ResidentialAdmin' }
+    );
+    addNotification(
+      'Nueva PQRS Radicada 📩',
+      `El apto ${newPqrs.location} ha radicado una ${newPqrs.type} sobre: "${newPqrs.subject}".`,
+      { role: 'SuperAdmin' }
+    );
 
     const updated = [newPqrs, ...pqrsList];
     setPqrsList(updated);
@@ -121,13 +135,20 @@ export const PQRS: React.FC = () => {
     e.preventDefault();
     if (!selectedPqrs || !responseText.trim()) return;
 
+    // Notify Resident
+    addNotification(
+      'Respuesta a PQRS 📩',
+      `La administración respondió tu PQRS sobre: "${selectedPqrs.subject}".`,
+      { location: selectedPqrs.location }
+    );
+
     const updated = pqrsList.map(p => {
       if (p.id === selectedPqrs.id) {
         return {
           ...p,
           status: 'Respondido' as const,
           response: responseText.trim(),
-          respondedAt: new Date().toLocaleString()
+          respondedAt: getFormattedNetworkTime()
         };
       }
       return p;

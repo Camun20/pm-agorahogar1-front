@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getFormattedNetworkTime } from '../../utils/time';
+import { addNotification } from '../../utils/notifications';
 import { 
   Users, UserPlus, Calendar, Search, ShieldCheck, CheckCircle2,
   Clock, LogOut, ArrowRightLeft, Info, AlertCircle
@@ -147,6 +148,12 @@ export const Visitantes: React.FC = () => {
   const handleCheckIn = (visitId: string) => {
     const updated = visits.map(v => {
       if (v.id === visitId) {
+        // Dispatch Resident Notification
+        addNotification(
+          'Visitante en Sitio 🚪',
+          `${v.visitorName} ha ingresado al conjunto residencial.`,
+          { location: v.location }
+        );
         return {
           ...v,
           status: 'En Sitio' as const,

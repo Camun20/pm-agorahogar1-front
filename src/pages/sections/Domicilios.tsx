@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getFormattedNetworkTime } from '../../utils/time';
+import { addNotification } from '../../utils/notifications';
 import { 
   Truck, Search, Plus, CheckCircle, PackageOpen, Inbox,
   Calendar, AlertCircle
@@ -114,6 +115,13 @@ export const Domicilios: React.FC = () => {
       securityName: user?.name || 'Seguridad'
     };
 
+    // Dispatch Resident Notification
+    addNotification(
+      'Nuevo Paquete en Portería 📦',
+      `Se ha recibido un paquete de ${newDelivery.company} para ${newDelivery.recipient}.`,
+      { location: newDelivery.location }
+    );
+
     const updated = [newDelivery, ...deliveries];
     setDeliveries(updated);
     localStorage.setItem('lobbyapp_deliveries', JSON.stringify(updated));
@@ -128,6 +136,12 @@ export const Domicilios: React.FC = () => {
   const handleMarkAsDelivered = (deliveryId: string) => {
     const updated = deliveries.map(d => {
       if (d.id === deliveryId) {
+        // Dispatch Resident Notification
+        addNotification(
+          'Paquete Entregado ✅',
+          `Tu paquete de ${d.company} ha sido marcado como entregado.`,
+          { location: d.location }
+        );
         return {
           ...d,
           status: 'Entregado' as const,

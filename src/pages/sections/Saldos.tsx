@@ -4,6 +4,7 @@ import {
   DollarSign, Search, Plus, Receipt, ArrowRight,
   TrendingUp, CreditCard, Info, AlertCircle
 } from 'lucide-react';
+import { addNotification } from '../../utils/notifications';
 
 interface BalanceCharge {
   concept: string; // ej. Administración Julio 2026, Parqueadero
@@ -148,6 +149,13 @@ export const Saldos: React.FC = () => {
       status: 'Pendiente',
       dueDate
     };
+
+    // Dispatch Resident Notification
+    addNotification(
+      'Estado de Cuenta Actualizado 💵',
+      `Se ha cargado un nuevo cobro de administración por valor de $${newBalance.totalBalance.toLocaleString()} COP. Límite de pago: ${newBalance.dueDate}.`,
+      { location: newBalance.location }
+    );
 
     const updated = [newBalance, ...balances];
     setBalances(updated);

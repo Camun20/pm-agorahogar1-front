@@ -4,6 +4,8 @@ import {
   Lightbulb, Droplet, Flame, Search, Plus, Bell,
   AlertCircle, Inbox
 } from 'lucide-react';
+import { getFormattedNetworkTime } from '../../utils/time';
+import { addNotification } from '../../utils/notifications';
 
 interface UtilityReceipt {
   id: string;
@@ -98,10 +100,17 @@ export const RecibosPublicos: React.FC = () => {
       utilityType,
       location: locationInput.trim(),
       residentName: residentName.trim(),
-      arrivedAt: new Date().toLocaleString(),
+      arrivedAt: getFormattedNetworkTime(),
       deliveredToResident: false,
       securityName: user?.name || 'Portería'
     };
+
+    // Dispatch Resident Notification
+    addNotification(
+      'Factura Física en Portería 💡',
+      `Ha llegado una factura física de ${newReceipt.utilityType} para tu unidad.`,
+      { location: newReceipt.location }
+    );
 
     const updated = [newReceipt, ...receipts];
     setReceipts(updated);
@@ -117,6 +126,12 @@ export const RecibosPublicos: React.FC = () => {
   const handleMarkAsDelivered = (receiptId: string) => {
     const updated = receipts.map(r => {
       if (r.id === receiptId) {
+        // Dispatch Resident Notification
+        addNotification(
+          'Factura Entregada ✅',
+          `Tu recibo físico de ${r.utilityType} ha sido marcado como entregado.`,
+          { location: r.location }
+        );
         return { ...r, deliveredToResident: true };
       }
       return r;

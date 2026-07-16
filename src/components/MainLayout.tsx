@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, type UserRole } from '../context/AuthContext';
+import { getNotifications, markAllNotificationsAsRead } from '../utils/notifications';
 import {
   Menu, X, Bell, MessageSquare, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight,
   ClipboardList, Users, Truck, DollarSign, FileSpreadsheet, HelpCircle,
@@ -37,6 +38,29 @@ export const MainLayout: React.FC = () => {
       document.body.classList.remove('light');
     };
   }, [theme]);
+
+  // Notificaciones Dinámicas
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadNotifs = () => {
+      if (user) {
+        const list = getNotifications(user.username, user.role, user.location);
+        setNotifications(list);
+      }
+    };
+    loadNotifs();
+    window.addEventListener('storage', loadNotifs);
+    return () => window.removeEventListener('storage', loadNotifs);
+  }, [user]);
+
+  const unreadCount = user ? notifications.filter(n => !n.readBy.includes(user.username)).length : 0;
+
+  const handleMarkAsRead = () => {
+    if (user) {
+      markAllNotificationsAsRead(user.username, user.role, user.location);
+    }
+  };
 
   // Estados de interfaz interactiva
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -359,41 +383,43 @@ export const MainLayout: React.FC = () => {
                 }`}
               >
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-indigo-500 rounded-full text-xxs font-extrabold flex items-center justify-center text-white border border-slate-900 animate-pulse">
-                  3
-                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-indigo-500 rounded-full text-xxs font-extrabold flex items-center justify-center text-white border border-slate-900 animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
 
               {isNotificationsOpen && (
                 <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 space-y-3 z-50 animate-fade-in">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                     <span className="font-semibold text-slate-200 text-sm">Notificaciones</span>
-                    <button className="text-xxs text-indigo-400 hover:text-indigo-300 cursor-pointer">
+                    <button 
+                      onClick={handleMarkAsRead}
+                      className="text-xxs text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                    >
                       Marcar leídas
                     </button>
                   </div>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
-                    <div className="p-2.5 hover:bg-slate-800/50 rounded-xl transition text-xs space-y-1">
-                      <div className="flex justify-between font-medium text-slate-200">
-                        <span>Nueva PQRS Creada</span>
-                        <span className="text-slate-500 text-xxs">10 min</span>
-                      </div>
-                      <p className="text-slate-400">Se registró la queja #293 sobre humedades.</p>
-                    </div>
-                    <div className="p-2.5 hover:bg-slate-800/50 rounded-xl transition text-xs space-y-1">
-                      <div className="flex justify-between font-medium text-slate-200">
-                        <span>Documento Cargado</span>
-                        <span className="text-slate-500 text-xxs">1 hora</span>
-                      </div>
-                      <p className="text-slate-400">Acta de Asamblea en PDF subida a S3.</p>
-                    </div>
-                    <div className="p-2.5 hover:bg-slate-800/50 rounded-xl transition text-xs space-y-1">
-                      <div className="flex justify-between font-medium text-slate-200">
-                        <span>Reserva Confirmada</span>
-                        <span className="text-slate-500 text-xxs">Ayer</span>
-                      </div>
-                      <p className="text-slate-400">Tu reserva del Salón BBQ fue pre-aprobada.</p>
-                    </div>
+                    {notifications.length === 0 ? (
+                      <p className="text-xs text-slate-500 text-center py-4">No tienes notificaciones</p>
+                    ) : (
+                      notifications.map((n) => {
+                        const isUnread = user && !n.readBy.includes(user.username);
+                        return (
+                          <div key={n.id} className={`p-2.5 rounded-xl transition text-xs space-y-1 ${
+                            isUnread ? 'bg-indigo-600/10 border border-indigo-500/20' : 'hover:bg-slate-800/50'
+                          }`}>
+                            <div className="flex justify-between font-medium text-slate-200">
+                              <span className={isUnread ? 'text-indigo-400 font-bold' : ''}>{n.title}</span>
+                              <span className="text-slate-500 text-xxs shrink-0 ml-2">{n.time}</span>
+                            </div>
+                            <p className="text-slate-400 leading-relaxed">{n.description}</p>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getFormattedNetworkDateOnly } from '../../utils/time';
+import { addNotification } from '../../utils/notifications';
 import { 
   Ban, Search, Plus, CheckCircle, XCircle,
   Clock, Inbox, AlertCircle
@@ -103,6 +104,26 @@ export const Sanciones: React.FC = () => {
       ...(isAdmin && { approvedBy: user?.name, cost: costInput > 0 ? costInput : undefined })
     };
 
+    // Dispatch Notifications depending on role and status
+    if (newSancion.status === 'Aprobada') {
+      addNotification(
+        'Novedad de Convivencia / Multa ⚠️',
+        `Se ha registrado un reporte de convivencia para tu unidad: "${newSancion.infraction}".`,
+        { location: newSancion.location }
+      );
+    } else {
+      addNotification(
+        'Nueva Novedad Reportada ⚠️',
+        `Seguridad reportó novedad en la unidad ${newSancion.location}: "${newSancion.infraction}".`,
+        { role: 'ResidentialAdmin' }
+      );
+      addNotification(
+        'Nueva Novedad Reportada ⚠️',
+        `Seguridad reportó novedad en la unidad ${newSancion.location}: "${newSancion.infraction}".`,
+        { role: 'SuperAdmin' }
+      );
+    }
+
     const updated = [newSancion, ...sanciones];
     setSanciones(updated);
     localStorage.setItem('lobbyapp_sanciones', JSON.stringify(updated));
@@ -116,6 +137,15 @@ export const Sanciones: React.FC = () => {
   };
 
   const handleApprove = (sancId: string, costAmount: number) => {
+    const target = sanciones.find(s => s.id === sancId);
+    if (target) {
+      addNotification(
+        'Reporte de Convivencia Aprobado ⚠️',
+        `Se aprobó novedad para tu unidad: "${target.infraction}".${costAmount > 0 ? ` Multa asignada: $${costAmount.toLocaleString()} COP.` : ''}`,
+        { location: target.location }
+      );
+    }
+
     const updated = sanciones.map(s => {
       if (s.id === sancId) {
         return { 
