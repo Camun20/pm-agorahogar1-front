@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { getFormattedNetworkDateOnly } from '../../utils/time';
 import { 
   CalendarDays, Plus, CheckCircle2, XCircle, Clock,
   MapPin, AlertCircle, Calendar, Check, Inbox
@@ -154,7 +155,7 @@ export const Reservas: React.FC = () => {
       residentName: user?.name || 'Residente',
       location: user?.location || 'Apto',
       status: 'Pendiente',
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: getFormattedNetworkDateOnly()
     };
 
     const updated = [newRes, ...reservations];

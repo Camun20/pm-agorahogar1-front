@@ -34,7 +34,6 @@ body.light {
 body.light .bg-slate-900,
 body.light .bg-slate-900\/60,
 body.light .bg-slate-950,
-body.light .bg-slate-950\/60,
 body.light .bg-slate-955,
 body.light .bg-slate-950\/80,
 body.light .bg-slate-955\/30,
@@ -54,15 +53,15 @@ body.light .border-slate-900 {
 
 body.light .text-slate-400,
 body.light .text-slate-500 {
-  color: #475569 !important;
-}
-
-body.light .text-slate-300 {
   color: #334155 !important;
 }
 
-body.light .text-slate-200 {
+body.light .text-slate-300 {
   color: #1e293b !important;
+}
+
+body.light .text-slate-200 {
+  color: #0f172a !important;
 }
 
 body.light .text-white {
@@ -80,11 +79,11 @@ body.light textarea {
 body.light input:focus,
 body.light select:focus,
 body.light textarea:focus {
-  border-color: #6366f1 !important;
+  border-color: #8b5cf6 !important;
 }
 
 body.light header.bg-slate-900\/40 {
-  background-color: rgba(255, 255, 255, 0.8) !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -116,3 +115,118 @@ body.light .hover\:bg-slate-800\/60:hover {
 body.light .shadow-xl {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
 }
+
+/* Header Banner Overrides (Purple to White gradient) */
+body.light .relative.overflow-hidden.bg-gradient-to-r {
+  background-image: linear-gradient(to right, #f3e8ff, #ffffff) !important;
+  border-color: #e9d5ff !important;
+}
+body.light .bg-gradient-to-r h1,
+body.light .bg-gradient-to-r h2,
+body.light .bg-gradient-to-r .text-white {
+  color: #6b21a8 !important;
+}
+body.light .bg-gradient-to-r p,
+body.light .bg-gradient-to-r .text-slate-400 {
+  color: #701a75 !important;
+}
+body.light .bg-gradient-to-r span.bg-indigo-500\/10 {
+  background-color: #faf5ff !important;
+  color: #8b5cf6 !important;
+  border-color: #ddd6fe !important;
+}
+
+/* Lighter Purple Buttons styling */
+body.light button.bg-indigo-600,
+body.light button.bg-indigo-700,
+body.light a.bg-indigo-600,
+body.light .bg-indigo-600,
+body.light button.bg-white,
+body.light a.bg-white {
+  background-color: #a78bfa !important;
+  color: #ffffff !important;
+  border-color: #c084fc !important;
+}
+body.light button.bg-indigo-600:hover,
+body.light button.bg-indigo-700:hover,
+body.light a.bg-indigo-600:hover,
+body.light button.bg-white:hover,
+body.light a.bg-white:hover {
+  background-color: #8b5cf6 !important;
+}
+body.light button.bg-slate-900,
+body.light button.bg-slate-850,
+body.light button.bg-slate-950\/60,
+body.light button.border-slate-800 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+body.light button.bg-slate-900:hover,
+body.light button.bg-slate-850:hover {
+  background-color: #e9d5ff !important;
+}
+
+/* Fully White Tables and Lists styling */
+body.light table,
+body.light thead,
+body.light tbody,
+body.light tr,
+body.light td,
+body.light th,
+body.light .divide-y > *,
+body.light .divide-slate-800 > * {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #f1f5f9 !important;
+}
+body.light tr:hover {
+  background-color: #faf5ff !important;
+}
+body.light thead th,
+body.light th {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  font-weight: 700 !important;
+}
+body.light td {
+  color: #1e293b !important;
+}
+
+/* High Contrast Status Badges / Pills */
+body.light .text-emerald-400,
+body.light .text-green-400,
+body.light .bg-emerald-500\/10,
+body.light .bg-green-500\/10,
+body.light .bg-emerald-500\/20 {
+  background-color: #dcfce7 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+body.light .text-amber-400,
+body.light .text-yellow-400,
+body.light .bg-amber-500\/10,
+body.light .bg-yellow-500\/10,
+body.light .bg-amber-500\/20 {
+  background-color: #fef9c3 !important;
+  color: #854d0e !important;
+  border: 1px solid #fef08a !important;
+}
+body.light .text-indigo-400,
+body.light .text-blue-400,
+body.light .bg-indigo-500\/10,
+body.light .bg-blue-500\/10,
+body.light .bg-indigo-500\/20 {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border: 1px solid #bfdbfe !important;
+}
+body.light .text-red-400,
+body.light .bg-red-500\/10,
+body.light .bg-red-500\/20 {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  border: 1px solid #fecaca !important;
+}
+

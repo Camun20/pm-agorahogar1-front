@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import AppRoutes from './routes/AppRoutes';
+import { syncInternetTime } from './utils/time';
 
 export const App: React.FC = () => {
+  useEffect(() => {
+    syncInternetTime();
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>

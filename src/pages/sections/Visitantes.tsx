@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { getFormattedNetworkTime } from '../../utils/time';
 import { 
   Users, UserPlus, Calendar, Search, ShieldCheck, CheckCircle2,
   Clock, LogOut, ArrowRightLeft, Info, AlertCircle
@@ -125,7 +126,7 @@ export const Visitantes: React.FC = () => {
       location: isSecurity ? locationInput.trim() || 'No especificado' : user?.location || '',
       // Security creates check-in directly, Resident pre-authorizes
       status: isSecurity ? 'En Sitio' : 'Pre-autorizado',
-      ...(isSecurity && { arrivalTime: new Date().toLocaleString() })
+      ...(isSecurity && { arrivalTime: getFormattedNetworkTime() })
     };
 
     const updated = [newVisit, ...visits];
@@ -149,7 +150,7 @@ export const Visitantes: React.FC = () => {
         return {
           ...v,
           status: 'En Sitio' as const,
-          arrivalTime: new Date().toLocaleString()
+          arrivalTime: getFormattedNetworkTime()
         };
       }
       return v;
@@ -165,7 +166,7 @@ export const Visitantes: React.FC = () => {
         return {
           ...v,
           status: 'Completado' as const,
-          departureTime: new Date().toLocaleString()
+          departureTime: getFormattedNetworkTime()
         };
       }
       return v;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { getFormattedNetworkTime } from '../../utils/time';
 import { 
   Truck, Search, Plus, CheckCircle, PackageOpen, Inbox,
   Calendar, AlertCircle
@@ -108,7 +109,7 @@ export const Domicilios: React.FC = () => {
       company: company.trim(),
       recipient: recipient.trim(),
       location: locationInput.trim(),
-      registeredAt: new Date().toLocaleString(),
+      registeredAt: getFormattedNetworkTime(),
       status: 'En Portería',
       securityName: user?.name || 'Seguridad'
     };
@@ -130,7 +131,7 @@ export const Domicilios: React.FC = () => {
         return {
           ...d,
           status: 'Entregado' as const,
-          deliveredAt: new Date().toLocaleString()
+          deliveredAt: getFormattedNetworkTime()
         };
       }
       return d;

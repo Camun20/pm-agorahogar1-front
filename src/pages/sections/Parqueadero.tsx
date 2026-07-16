@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { getFormattedNetworkTime } from '../../utils/time';
 import { 
   Car, Search, Plus, Clock, ArrowRightLeft,
   ShieldAlert, Inbox, AlertCircle, LogOut
@@ -156,7 +157,7 @@ export const Parqueadero: React.FC = () => {
       brandModel: brandModel.trim(),
       locationVisited: locationInput.trim(),
       residentVisited: resName.trim(),
-      arrivalTime: new Date().toLocaleString(),
+      arrivalTime: getFormattedNetworkTime(),
       status: 'Activo'
     };
 
@@ -180,7 +181,7 @@ export const Parqueadero: React.FC = () => {
         return {
           ...v,
           status: 'Salida' as const,
-          departureTime: new Date().toLocaleString()
+          departureTime: getFormattedNetworkTime()
         };
       }
       return v;

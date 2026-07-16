@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { getFormattedNetworkDateOnly } from '../../utils/time';
 import { 
   Ban, Search, Plus, CheckCircle, XCircle,
   Clock, Inbox, AlertCircle
@@ -98,7 +99,7 @@ export const Sanciones: React.FC = () => {
       reportedBy: `${user?.name || 'Seguridad'} (${user?.role || 'Guarda'})`,
       // Admin reports are APPROVED directly, security reports need approval
       status: isAdmin ? 'Aprobada' : 'Pendiente Aprobación',
-      createdAt: new Date().toISOString().split('T')[0],
+      createdAt: getFormattedNetworkDateOnly(),
       ...(isAdmin && { approvedBy: user?.name, cost: costInput > 0 ? costInput : undefined })
     };
 

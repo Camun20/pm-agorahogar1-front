@@ -32,6 +32,10 @@ export const MainLayout: React.FC = () => {
       document.body.classList.remove('light');
     }
     localStorage.setItem('lobbyapp_theme', theme);
+    // Cleanup theme class when unmounting (so it doesn't affect login)
+    return () => {
+      document.body.classList.remove('light');
+    };
   }, [theme]);
 
   // Estados de interfaz interactiva
