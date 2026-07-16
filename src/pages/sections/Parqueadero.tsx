@@ -176,18 +176,44 @@ export const Parqueadero: React.FC = () => {
 
   // Check-out visitor vehicle
   const handleVisitorCheckOut = (vvId: string) => {
+    const target = visitorCars.find(v => v.id === vvId);
+    const depTime = getFormattedNetworkTime();
+
     const updated = visitorCars.map(v => {
       if (v.id === vvId) {
         return {
           ...v,
           status: 'Salida' as const,
-          departureTime: getFormattedNetworkTime()
+          departureTime: depTime
         };
       }
       return v;
     });
     setVisitorCars(updated);
     localStorage.setItem('lobbyapp_park_visitor', JSON.stringify(updated));
+
+    // Reverse sync: also check out matching visitor in lobbyapp_visits
+    if (target?.plate) {
+      try {
+        const savedVisits = localStorage.getItem('lobbyapp_visits');
+        if (savedVisits) {
+          const visits = JSON.parse(savedVisits) as any[];
+          const updatedVisits = visits.map((v: any) => {
+            if (v.plate && v.plate.toUpperCase() === target.plate.toUpperCase() && v.status === 'En Sitio') {
+              return {
+                ...v,
+                status: 'Completado',
+                departureTime: depTime
+              };
+            }
+            return v;
+          });
+          localStorage.setItem('lobbyapp_visits', JSON.stringify(updatedVisits));
+        }
+      } catch (e) {
+        console.warn('Could not sync visitor checkout to visits', e);
+      }
+    }
   };
 
   // Filter lists based on Search, tab, and role

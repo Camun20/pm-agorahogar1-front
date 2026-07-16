@@ -290,7 +290,10 @@ export const Reservas: React.FC = () => {
     }
 
     if (activeTab === 'calendar') {
-      return r.status === 'Aprobada'; // Only approved ones are on calendar
+      // For residents: show ALL their solicitudes (all statuses)
+      // For admin/security: show only approved
+      if (!isAdmin && !isSecurity) return true;
+      return r.status === 'Aprobada';
     }
     if (activeTab === 'manage') {
       return isAdmin && r.status === 'Pendiente';
@@ -326,7 +329,7 @@ export const Reservas: React.FC = () => {
                 activeTab === 'calendar' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-400'
               }`}
             >
-              Agenda Aprobada
+              {(!isAdmin && !isSecurity) ? 'Solicitudes' : 'Agenda Aprobada'}
             </button>
             {!isAdmin && (
               <button
@@ -365,7 +368,7 @@ export const Reservas: React.FC = () => {
               {isAdmin && (
                 <button
                   onClick={() => setShowSpaceForm(!showSpaceForm)}
-                  className="text-xxs bg-indigo-950/40 border border-indigo-500/20 text-indigo-300 px-2 py-1 rounded-md transition"
+                  className="text-xxs bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/30 text-white px-2.5 py-1 rounded-md transition cursor-pointer shadow-sm"
                 >
                   {showSpaceForm ? 'Ver Lista' : '+ Crear'}
                 </button>
@@ -505,7 +508,7 @@ export const Reservas: React.FC = () => {
 
                 {/* Real-time Dynamic Payment Breakdown */}
                 {selectedSpaceId && (
-                  <div className="p-4 bg-slate-950/65 border border-slate-800/80 rounded-xl space-y-2 text-xs">
+                  <div className="p-4 bg-indigo-950/30 border border-indigo-500/20 rounded-xl space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Tarifa por Hora:</span>
                       <span className="text-slate-200 font-bold">
@@ -552,9 +555,10 @@ export const Reservas: React.FC = () => {
             /* Reservations display List/Calendar */
             <div className="space-y-4">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                {activeTab === 'calendar' ? 'Calendario de Eventos Confirmados' :
-                 activeTab === 'manage' ? 'Bandeja de Aprobaciones Pendientes' :
-                 'Mi Historial de Solicitudes'}
+                {activeTab === 'calendar'
+                  ? ((!isAdmin && !isSecurity) ? 'Mis Solicitudes de Reserva' : 'Calendario de Eventos Confirmados')
+                  : activeTab === 'manage' ? 'Bandeja de Aprobaciones Pendientes'
+                  : 'Mi Historial de Solicitudes'}
               </h4>
 
               <div className="space-y-3">
