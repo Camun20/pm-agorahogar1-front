@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getFormattedNetworkDateOnly } from '../../utils/time';
 import { addNotification } from '../../utils/notifications';
+import { showError } from '../../utils/alerts';
 import { 
   CalendarDays, Plus, CheckCircle2, XCircle, Clock,
   MapPin, AlertCircle, Calendar, Check, Inbox
@@ -198,7 +199,7 @@ export const Reservas: React.FC = () => {
     );
 
     if (hasCollision) {
-      alert('Error: No puedes aprobar esta reserva porque ya hay otra aprobada en el mismo horario. Debes rechazarla o sugerir cambio.');
+      showError('Error de Aprobación', 'No puedes aprobar esta reserva porque ya hay otra aprobada en el mismo horario. Debes rechazarla o sugerir cambio.');
       return;
     }
 

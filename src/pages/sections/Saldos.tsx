@@ -5,6 +5,7 @@ import {
   TrendingUp, CreditCard, Info, AlertCircle
 } from 'lucide-react';
 import { addNotification } from '../../utils/notifications';
+import { showConfirm, showSuccess } from '../../utils/alerts';
 
 interface BalanceCharge {
   concept: string; // ej. Administración Julio 2026, Parqueadero
@@ -171,8 +172,13 @@ export const Saldos: React.FC = () => {
   };
 
   // Resident simulator pay balance
-  const handlePayBalance = (balanceId: string) => {
-    if (window.confirm('¿Deseas simular la pasarela de pagos PSE para saldar esta cuenta?')) {
+  const handlePayBalance = async (balanceId: string) => {
+    const isConfirmed = await showConfirm(
+      'Simulador PSE 💳',
+      '¿Deseas simular la pasarela de pagos PSE para saldar esta cuenta?',
+      'Simular Pago'
+    );
+    if (isConfirmed) {
       const updated = balances.map(b => {
         if (b.id === balanceId) {
           return {
@@ -185,7 +191,7 @@ export const Saldos: React.FC = () => {
       });
       setBalances(updated);
       localStorage.setItem('lobbyapp_balances', JSON.stringify(updated));
-      alert('Pago procesado con éxito por pasarela PSE.');
+      showSuccess('Pago Exitoso', 'Pago procesado con éxito por pasarela PSE.');
       if (selectedBalance?.id === balanceId) {
         setSelectedBalance(null);
       }

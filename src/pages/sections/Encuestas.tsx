@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { showSuccess, showConfirm } from '../../utils/alerts';
 import { 
   ClipboardList, Plus, HelpCircle, CheckCircle, 
   Trash2, AlertCircle, Info, Calendar, ArrowLeft, Send
@@ -178,7 +179,7 @@ export const Encuestas: React.FC = () => {
     if (current) setSelectedSurvey(current);
 
     setTempAnswers({});
-    alert('Tus respuestas han sido registradas con éxito.');
+    showSuccess('Respuestas Guardadas', 'Tus respuestas han sido registradas con éxito.');
   };
 
   // Add question to new survey
@@ -309,8 +310,13 @@ export const Encuestas: React.FC = () => {
     setActiveTab('list');
   };
 
-  const handleDeleteSurvey = (surveyId: string) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta encuesta?')) {
+  const handleDeleteSurvey = async (surveyId: string) => {
+    const isConfirmed = await showConfirm(
+      '¿Eliminar encuesta?',
+      '¿Estás seguro de que deseas eliminar esta encuesta?',
+      'Sí, eliminar'
+    );
+    if (isConfirmed) {
       const updated = surveys.filter(s => s.id !== surveyId);
       setSurveys(updated);
       localStorage.setItem('lobbyapp_surveys', JSON.stringify(updated));

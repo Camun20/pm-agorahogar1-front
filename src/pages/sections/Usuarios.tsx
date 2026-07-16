@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth, type User, type UserRole } from '../../context/AuthContext';
+import { showConfirm, showWarning, showError } from '../../utils/alerts';
 import { 
   Users, UserPlus, Edit2, Trash2, Key, Info, ShieldAlert,
   Building, UserCheck, AlertTriangle, X, Search
@@ -123,15 +124,21 @@ export const Usuarios: React.FC = () => {
 
   const handleDelete = async (usernameToDelete: string) => {
     if (usernameToDelete === currentUser?.username) {
-      alert('No puedes eliminar tu propio usuario activo.');
+      showWarning('Operación cancelada', 'No puedes eliminar tu propio usuario activo.');
       return;
     }
 
-    if (window.confirm(`¿Estás seguro de que deseas eliminar el usuario "${usernameToDelete}"?`)) {
+    const isConfirmed = await showConfirm(
+      '¿Eliminar usuario?',
+      `¿Estás seguro de que deseas eliminar el usuario "${usernameToDelete}"?`,
+      'Sí, eliminar'
+    );
+
+    if (isConfirmed) {
       try {
         await deleteUser(usernameToDelete);
       } catch (err: any) {
-        alert(err.message || 'Error al eliminar usuario');
+        showError('Error', err.message || 'Error al eliminar usuario');
       }
     }
   };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { showSuccess } from '../../utils/alerts';
 import { 
   FileSpreadsheet, Search, Plus, Download, FileText, Calendar,
   AlertCircle, Inbox
@@ -106,7 +107,7 @@ export const EstadosCuenta: React.FC = () => {
 
   // Mock download trigger
   const handleDownload = (statement: StatementFile) => {
-    alert(`Iniciando la descarga del archivo:\n"${statement.name}" (${statement.fileSize})`);
+    showSuccess('Descarga Iniciada', `Iniciando la descarga del archivo:\n"${statement.name}" (${statement.fileSize})`);
   };
 
   return (

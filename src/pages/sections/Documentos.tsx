@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { showSuccess } from '../../utils/alerts';
 import { 
   FolderGit, Search, Plus, Download, FileText,
   AlertCircle, Inbox
@@ -106,7 +107,7 @@ export const Documentos: React.FC = () => {
 
   // Mock download trigger
   const handleDownload = (doc: GeneralDocument) => {
-    alert(`Descargando documento de la copropiedad:\n"${doc.title}" (${doc.fileSize})`);
+    showSuccess('Descarga Iniciada', `Descargando documento de la copropiedad:\n"${doc.title}" (${doc.fileSize})`);
   };
 
   return (
