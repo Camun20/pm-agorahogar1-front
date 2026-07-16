@@ -697,7 +697,11 @@ export const Encuestas: React.FC = () => {
                         <Calendar className="w-3.5 h-3.5" />
                         Publicado: {survey.createdAt}
                       </span>
-                      {isVoted ? (
+                      {isAdmin ? (
+                        <span className="text-indigo-400 font-semibold bg-indigo-500/10 border border-indigo-500/25 px-2 py-0.5 rounded-full">
+                          Ver Resultados
+                        </span>
+                      ) : isVoted ? (
                         <span className="flex items-center gap-0.5 text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full">
                           <CheckCircle className="w-3 h-3" /> Respondida
                         </span>

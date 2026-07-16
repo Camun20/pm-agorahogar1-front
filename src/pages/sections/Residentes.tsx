@@ -158,7 +158,6 @@ export const Residentes: React.FC = () => {
                     <tr key={r.username} className="hover:bg-slate-900/30 transition-colors">
                       <td className="px-5 py-4">
                         <div className="font-semibold text-slate-200">{r.name}</div>
-                        <div className="font-mono text-[10px] text-indigo-400">{r.username}</div>
                       </td>
                       <td className="px-5 py-4 text-slate-300">
                         {r.location ? (
@@ -235,7 +234,7 @@ export const Residentes: React.FC = () => {
 
             <div className="space-y-5">
               {/* Propietario / Titular card */}
-              <div className="p-4 bg-slate-950/85 border border-slate-850 rounded-xl space-y-2">
+              <div className="p-4 bg-slate-950/80 border border-slate-850 rounded-xl space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Propietario / Titular de Cuenta</span>
                   <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-extrabold rounded-full uppercase">
@@ -244,7 +243,6 @@ export const Residentes: React.FC = () => {
                 </div>
                 <div className="space-y-1">
                   <p className="font-bold text-slate-200 text-sm">{selectedResident.name}</p>
-                  <p className="text-xs text-slate-500 font-mono">Usuario: {selectedResident.username}</p>
                   {selectedResident.phone && <p className="text-xs text-slate-400">Tel: {selectedResident.phone}</p>}
                 </div>
               </div>
@@ -261,7 +259,7 @@ export const Residentes: React.FC = () => {
                       <div key={inh.id} className="p-3 bg-slate-955 border border-slate-800 rounded-xl flex items-center justify-between">
                         <div>
                           <div className="font-bold text-slate-200 text-xs">{inh.name}</div>
-                          <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500 font-mono">
+                          <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 font-semibold tracking-wide">
                             <span>CC: {inh.documentId}</span>
                             <span>•</span>
                             <span>{inh.age} años</span>

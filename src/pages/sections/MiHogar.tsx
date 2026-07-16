@@ -217,11 +217,11 @@ export const MiHogar: React.FC = () => {
                   <div className="space-y-1.5 text-xs text-slate-400">
                     <p className="flex items-center gap-1.5">
                       <span className="text-slate-500 font-medium">Documento:</span>
-                      <span className="font-mono text-slate-300">{member.documentId}</span>
+                      <span className="text-slate-300 font-semibold tracking-wide">{member.documentId}</span>
                     </p>
                     <p className="flex items-center gap-1.5">
                       <span className="text-slate-500 font-medium">Edad:</span>
-                      <span className="text-slate-300">{member.age} años</span>
+                      <span className="text-slate-300 font-semibold tracking-wide">{member.age} años</span>
                     </p>
                   </div>
                 </div>

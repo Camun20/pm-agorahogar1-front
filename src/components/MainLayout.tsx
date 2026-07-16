@@ -33,10 +33,6 @@ export const MainLayout: React.FC = () => {
       document.body.classList.remove('light');
     }
     localStorage.setItem('lobbyapp_theme', theme);
-    // Cleanup theme class when unmounting (so it doesn't affect login)
-    return () => {
-      document.body.classList.remove('light');
-    };
   }, [theme]);
 
   // Notificaciones Dinámicas
@@ -77,10 +73,16 @@ export const MainLayout: React.FC = () => {
   // Nota: El frontend lee el grupo de Cognito del token JWT mapeado en user.role
   const sidebarItems: SidebarItem[] = [
     {
-      name: 'Encuestas',
-      path: '/encuestas',
-      icon: <ClipboardList className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
+      name: 'Mi Hogar',
+      path: '/mi-hogar',
+      icon: <Home className="w-5 h-5" />,
+      allowedRoles: ['Resident'],
+    },
+    {
+      name: 'Residentes',
+      path: '/residentes',
+      icon: <Users className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Accounting'],
     },
     {
       name: 'Visitantes',
@@ -92,48 +94,6 @@ export const MainLayout: React.FC = () => {
       name: 'Domicilios',
       path: '/domicilios',
       icon: <Truck className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'Security', 'Resident'],
-    },
-    {
-      name: 'Saldos',
-      path: '/saldos',
-      icon: <DollarSign className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Accounting', 'Resident'],
-    },
-    {
-      name: 'Estados de Cuenta',
-      path: '/estados-cuenta',
-      icon: <FileSpreadsheet className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Accounting', 'Resident'],
-    },
-    {
-      name: 'PQRS',
-      path: '/pqrs',
-      icon: <HelpCircle className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
-    },
-    {
-      name: 'Cartelera',
-      path: '/cartelera',
-      icon: <Presentation className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
-    },
-    {
-      name: 'Documentos',
-      path: '/documentos',
-      icon: <FolderGit className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
-    },
-    {
-      name: 'Sanciones',
-      path: '/sanciones',
-      icon: <Ban className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
-    },
-    {
-      name: 'Recibos Públicos',
-      path: '/recibos-publicos',
-      icon: <Lightbulb className="w-5 h-5" />,
       allowedRoles: ['SuperAdmin', 'Security', 'Resident'],
     },
     {
@@ -155,22 +115,58 @@ export const MainLayout: React.FC = () => {
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
     },
     {
+      name: 'Saldos',
+      path: '/saldos',
+      icon: <DollarSign className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Accounting', 'Resident'],
+    },
+    {
+      name: 'Estados de Cuenta',
+      path: '/estados-cuenta',
+      icon: <FileSpreadsheet className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Accounting', 'Resident'],
+    },
+    {
+      name: 'Sanciones',
+      path: '/sanciones',
+      icon: <Ban className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Resident'],
+    },
+    {
+      name: 'Cartelera',
+      path: '/cartelera',
+      icon: <Presentation className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
+    },
+    {
+      name: 'Encuestas',
+      path: '/encuestas',
+      icon: <ClipboardList className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
+    },
+    {
+      name: 'Documentos',
+      path: '/documentos',
+      icon: <FolderGit className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
+    },
+    {
+      name: 'PQRS',
+      path: '/pqrs',
+      icon: <HelpCircle className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Resident'],
+    },
+    {
+      name: 'Recibos Públicos',
+      path: '/recibos-publicos',
+      icon: <Lightbulb className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'Security', 'Resident'],
+    },
+    {
       name: 'Gestión Usuarios',
       path: '/usuarios',
       icon: <Users className="w-5 h-5" />,
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin'],
-    },
-    {
-      name: 'Residentes',
-      path: '/residentes',
-      icon: <Users className="w-5 h-5" />,
-      allowedRoles: ['SuperAdmin', 'ResidentialAdmin', 'Security', 'Accounting'],
-    },
-    {
-      name: 'Mi Hogar',
-      path: '/mi-hogar',
-      icon: <Home className="w-5 h-5" />,
-      allowedRoles: ['Resident'],
     },
   ];
 
