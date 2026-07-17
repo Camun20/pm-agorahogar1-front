@@ -551,7 +551,11 @@ export const Parqueadero: React.FC = () => {
                           )}
                         </td>
                         <td className="px-5 py-4 text-xs font-semibold text-emerald-400 font-mono">
-                          ${calculateParkingCharge(c.arrivalTime, c.departureTime).toLocaleString()} COP
+                          {c.status === 'Salida' ? (
+                            `$${calculateParkingCharge(c.arrivalTime, c.departureTime).toLocaleString()} COP`
+                          ) : (
+                            <span className="text-slate-500 font-normal italic">—</span>
+                          )}
                         </td>
                         {isSecurity && subTab === 'active' && (
                           <td className="px-5 py-4 text-right">
