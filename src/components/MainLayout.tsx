@@ -367,7 +367,7 @@ export const MainLayout: React.FC = () => {
               </button>
 
               {isNotificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 space-y-3 z-50 animate-fade-in">
+                <div className="absolute right-[-1.5rem] sm:right-0 mt-2 w-[calc(100vw-2rem)] max-w-[320px] sm:w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 space-y-3 z-50 animate-fade-in">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                     <span className="font-semibold text-slate-200 text-sm">Notificaciones</span>
                     <button 
