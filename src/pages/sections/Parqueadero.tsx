@@ -522,7 +522,7 @@ export const Parqueadero: React.FC = () => {
                     <th className="px-5 py-3.5">Visitante</th>
                     <th className="px-5 py-3.5">Visitado / Apto</th>
                     <th className="px-5 py-3.5">Entrada / Salida</th>
-                    <th className="px-5 py-3.5">Cobro ($)</th>
+                    {subTab === 'history' && <th className="px-5 py-3.5">Cobro ($)</th>}
                     {isSecurity && subTab === 'active' && <th className="px-5 py-3.5 text-right">Acción</th>}
                   </tr>
                 </thead>
@@ -550,13 +550,11 @@ export const Parqueadero: React.FC = () => {
                             </div>
                           )}
                         </td>
-                        <td className="px-5 py-4 text-xs font-semibold text-emerald-400 font-mono">
-                          {c.status === 'Salida' ? (
-                            `$${calculateParkingCharge(c.arrivalTime, c.departureTime).toLocaleString()} COP`
-                          ) : (
-                            <span className="text-slate-500 font-normal italic">—</span>
-                          )}
-                        </td>
+                        {subTab === 'history' && (
+                          <td className="px-5 py-4 text-xs font-semibold text-emerald-400 font-mono">
+                            {`$${calculateParkingCharge(c.arrivalTime, c.departureTime).toLocaleString()} COP`}
+                          </td>
+                        )}
                         {isSecurity && subTab === 'active' && (
                           <td className="px-5 py-4 text-right">
                             <button
@@ -572,7 +570,7 @@ export const Parqueadero: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={isSecurity && subTab === 'active' ? 8 : 7} className="px-5 py-12 text-center text-slate-500">
+                      <td colSpan={subTab === 'active' ? (isSecurity ? 7 : 6) : 7} className="px-5 py-12 text-center text-slate-500">
                         <Inbox className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                         No hay vehículos de visitantes registrados en esta categoría.
                       </td>

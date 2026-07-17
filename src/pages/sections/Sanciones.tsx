@@ -339,13 +339,13 @@ export const Sanciones: React.FC = () => {
                   }`}
                 >
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap justify-between items-center gap-2">
                       <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         Reportado: {s.createdAt}
                       </span>
 
-                      <span className={`px-2 py-0.5 rounded-full text-xxs font-bold border uppercase ${
+                      <span className={`px-2 py-0.5 rounded-full text-xxs font-bold border uppercase whitespace-nowrap shrink-0 ${
                         s.status === 'Aprobada' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                         s.status === 'Pendiente Aprobación' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' :
                         'bg-red-500/10 text-red-400 border-red-500/20'

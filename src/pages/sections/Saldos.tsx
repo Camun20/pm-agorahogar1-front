@@ -388,25 +388,25 @@ export const Saldos: React.FC = () => {
                   <div 
                     key={b.id}
                     onClick={() => setSelectedBalance(b)}
-                    className={`p-4 bg-slate-900/60 border rounded-2xl cursor-pointer hover:border-indigo-500/50 transition-all flex items-center justify-between gap-4 ${
+                    className={`p-4 bg-slate-900/60 border rounded-2xl cursor-pointer hover:border-indigo-500/50 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${
                       selectedBalance?.id === b.id ? 'border-indigo-500 bg-slate-900' : 'border-slate-800/80'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl border ${
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`p-2 sm:p-2.5 rounded-xl border shrink-0 ${
                         b.status === 'Al Día' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
                       }`}>
-                        <TrendingUp className="w-5 h-5" />
+                        <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <div>
-                        <h4 className="font-bold text-slate-200 text-sm">{b.residentName}</h4>
-                        <p className="text-xxs text-slate-500">{b.location} — Vence: {b.dueDate}</p>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-bold text-slate-200 text-xs sm:text-sm truncate">{b.residentName}</h4>
+                        <p className="text-xxs text-slate-500 truncate">{b.location} — Vence: {b.dueDate}</p>
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className="font-bold text-white text-sm">${b.totalBalance.toLocaleString()}</div>
-                      <span className={`inline-flex px-2 py-0.5 mt-1 rounded-full text-xxs font-bold border ${
+                    <div className="flex items-center gap-2 sm:flex-col sm:items-end pl-11 sm:pl-0 shrink-0">
+                      <div className="font-bold text-white text-xs sm:text-sm">${b.totalBalance.toLocaleString()}</div>
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xxs font-bold border whitespace-nowrap ${
                         b.status === 'Al Día' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
                       }`}>
                         {b.status}

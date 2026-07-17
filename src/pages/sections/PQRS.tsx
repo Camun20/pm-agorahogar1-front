@@ -304,27 +304,27 @@ export const PQRS: React.FC = () => {
                   <div
                     key={p.id}
                     onClick={() => setSelectedPqrs(p)}
-                    className={`p-4 bg-slate-900/60 border rounded-2xl cursor-pointer hover:border-indigo-500/50 transition flex items-center justify-between gap-4 ${
+                    className={`p-4 bg-slate-900/60 border rounded-2xl cursor-pointer hover:border-indigo-500/50 transition flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${
                       selectedPqrs?.id === p.id ? 'border-indigo-500 bg-slate-900' : 'border-slate-800/80'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl border bg-slate-950 text-slate-400`}>
-                        <MessageSquare className="w-5 h-5" />
+                    <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                      <div className={`p-2 sm:p-2.5 rounded-xl border bg-slate-950 text-slate-400 shrink-0`}>
+                        <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xxs font-bold text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className="text-xxs font-bold text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full shrink-0">
                             {p.type}
                           </span>
-                          <h4 className="font-bold text-slate-200 text-sm line-clamp-1">{p.subject}</h4>
+                          <h4 className="font-bold text-slate-200 text-xs sm:text-sm truncate">{p.subject}</h4>
                         </div>
-                        <p className="text-xxs text-slate-500 mt-1">{p.location} — {p.registeredAt}</p>
+                        <p className="text-xxs text-slate-500 mt-1 truncate">{p.location} — {p.registeredAt}</p>
                       </div>
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xxs font-bold border ${
+                    <div className="flex sm:justify-end shrink-0 pl-11 sm:pl-0">
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xxs font-bold border whitespace-nowrap ${
                         p.status === 'Abierto' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                       }`}>
                         {p.status}

@@ -569,11 +569,11 @@ export const Reservas: React.FC = () => {
                       className="p-4 bg-slate-900/60 border border-slate-800/85 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
                     >
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className="text-[10px] font-bold text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
                             {res.spaceName}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase whitespace-nowrap shrink-0 ${
                             res.status === 'Aprobada' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                             res.status === 'Pendiente' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
                             'bg-red-500/10 text-red-400 border-red-500/20'

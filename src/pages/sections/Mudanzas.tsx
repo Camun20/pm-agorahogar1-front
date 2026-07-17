@@ -294,13 +294,13 @@ export const Mudanzas: React.FC = () => {
               filteredRequests.map((r) => (
                 <div key={r.id} className="p-5 bg-slate-950/60 border border-slate-800/85 rounded-2xl flex flex-col justify-between hover:border-indigo-500/40 transition">
                   <div className="space-y-3.5">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-wrap justify-between items-center gap-2">
                       <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5" />
                         Solicitado: {r.createdAt}
                       </span>
 
-                      <span className={`px-2 py-0.5 rounded-full text-xxs font-bold border uppercase ${
+                      <span className={`px-2 py-0.5 rounded-full text-xxs font-bold border uppercase whitespace-nowrap shrink-0 ${
                         r.status === 'Aprobada' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                         r.status === 'Pendiente' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' :
                         'bg-red-500/10 text-red-400 border-red-500/20'
