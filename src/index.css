@@ -295,3 +295,16 @@ body.light select option {
   background-color: #ffffff !important;
   color: #0f172a !important;
 }
+
+/* Light Mode Invitation Cards Overrides */
+body.light .invitation-card {
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%) !important;
+  border-color: #bfdbfe !important;
+}
+body.light .invitation-card * {
+  color: #1e40af !important;
+}
+body.light .invitation-card span.bg-blue-500\/10 {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+}

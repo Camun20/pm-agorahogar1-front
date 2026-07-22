@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { showSuccess } from '../utils/alerts';
 import { 
-  Building2, KeyRound, User as UserIcon, AlertTriangle, Info,
+  KeyRound, User as UserIcon, AlertTriangle, Info,
   Sun, Moon, Mail, ShieldCheck, Lock, ArrowLeft
 } from 'lucide-react';
 
@@ -187,13 +187,17 @@ export const LoginPage: React.FC = () => {
 
       <div className="w-full max-w-lg z-10 space-y-6">
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-tr from-indigo-600 to-blue-600 rounded-2xl shadow-xl shadow-indigo-600/20 mb-2">
-            <Building2 className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            Lobby<span className="text-indigo-400">App</span>
-          </h1>
+        <div className="text-center space-y-2 flex flex-col items-center">
+          <img 
+            src={theme === 'light' ? '/logo1.png' : '/logo.png'} 
+            alt="Logo" 
+            className="h-16 w-auto object-contain mb-2" 
+            onError={(e) => { 
+              e.currentTarget.src = theme === 'light' 
+                ? 'https://placehold.co/180x64/f1f5f9/0f172a?text=Logo' 
+                : 'https://placehold.co/180x64/0f172a/white?text=Logo'; 
+            }} 
+          />
           <p className="text-slate-400 text-sm max-w-sm mx-auto">
             Sistema Integrado de Administración y Gestión Residencial
           </p>

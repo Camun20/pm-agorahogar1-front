@@ -180,7 +180,7 @@ export const Dashboard: React.FC = () => {
 
               if (ann.type === 'Invitación') {
                 return (
-                  <div key={ann.id} className="p-5 bg-gradient-to-br from-indigo-950/30 to-blue-950/20 border border-blue-500/20 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-4 items-start">
+                  <div key={ann.id} className="invitation-card p-5 bg-gradient-to-br from-indigo-950/30 to-blue-950/20 border border-blue-500/20 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-4 items-start">
                     <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl shrink-0 text-blue-400">
                       <Calendar className="w-6 h-6" />
                     </div>

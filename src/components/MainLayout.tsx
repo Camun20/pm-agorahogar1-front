@@ -63,8 +63,8 @@ export const MainLayout: React.FC = () => {
     if (t.includes('recibo')) return '/recibos-publicos';
     if (t.includes('visita')) return '/visitantes';
     if (t.includes('domicilio')) return '/domicilios';
-    if (t.includes('sanción') || t.includes('sancion')) return '/sanciones';
-    if (t.includes('saldo')) return '/saldos';
+    if (t.includes('sanción') || t.includes('sancion') || t.includes('multa')) return '/sanciones';
+    if (t.includes('saldo') || t.includes('cuenta') || t.includes('pago')) return '/saldos';
     if (t.includes('reserva')) return '/reservas';
     if (t.includes('pqrs')) return '/pqrs';
     if (t.includes('mudanza')) return '/mudanzas';
@@ -79,7 +79,10 @@ export const MainLayout: React.FC = () => {
       markNotificationAsRead(n.id, user.username);
     }
     setIsNotificationsOpen(false);
-    navigate(getNotificationPath(n.title));
+    const path = getNotificationPath(n.title);
+    setTimeout(() => {
+      navigate(path);
+    }, 50);
   };
 
   // Estados de interfaz interactiva
@@ -225,9 +228,9 @@ export const MainLayout: React.FC = () => {
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
           <Link to="/" className="flex items-center gap-2.5 overflow-hidden">
             {isSidebarCollapsed ? (
-              <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain shrink-0 rounded-lg" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              <img src={theme === 'light' ? '/logo1.png' : '/logo.png'} alt="Logo" className="w-8 h-8 object-contain shrink-0 rounded-lg" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             ) : (
-              <img src="/logo.png" alt="Logo" className="h-8 w-auto max-w-[150px] object-contain shrink-0" onError={(e) => { e.currentTarget.src = 'https://placehold.co/150x32/0f172a/white?text=Logo'; }} />
+              <img src={theme === 'light' ? '/logo1.png' : '/logo.png'} alt="Logo" className="h-8 w-auto max-w-[150px] object-contain shrink-0" onError={(e) => { e.currentTarget.src = theme === 'light' ? 'https://placehold.co/150x32/f1f5f9/0f172a?text=Logo' : 'https://placehold.co/150x32/0f172a/white?text=Logo'; }} />
             )}
           </Link>
           <button 
@@ -292,7 +295,7 @@ export const MainLayout: React.FC = () => {
           <div className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full animate-slide-in">
             <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
               <Link to="/" onClick={() => setIsMobileSidebarOpen(false)} className="flex items-center gap-2">
-                <img src="/logo.png" alt="Logo" className="h-8 w-auto max-w-[120px] object-contain shrink-0" onError={(e) => { e.currentTarget.src = 'https://placehold.co/120x32/0f172a/white?text=Logo'; }} />
+                <img src={theme === 'light' ? '/logo1.png' : '/logo.png'} alt="Logo" className="h-8 w-auto max-w-[120px] object-contain shrink-0" onError={(e) => { e.currentTarget.src = theme === 'light' ? 'https://placehold.co/120x32/f1f5f9/0f172a?text=Logo' : 'https://placehold.co/120x32/0f172a/white?text=Logo'; }} />
               </Link>
               <button 
                 onClick={() => setIsMobileSidebarOpen(false)}
@@ -357,7 +360,7 @@ export const MainLayout: React.FC = () => {
           {/* Center: Brand App Name (Typography elegante) */}
           <div className="flex-1 text-center md:text-left md:pl-2">
             <Link to="/" className="flex items-center gap-2">
-              <img src="/logo.png" alt="Logo" className="h-6 w-auto object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              <img src={theme === 'light' ? '/logo1.png' : '/logo.png'} alt="Logo" className="h-6 w-auto object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
               <span className="text-xs sm:text-sm font-semibold tracking-wider text-slate-300 font-sans uppercase">Gestión Residencial</span>
             </Link>
           </div>
