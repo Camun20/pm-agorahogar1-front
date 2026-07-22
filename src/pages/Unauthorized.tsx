@@ -32,7 +32,7 @@ export const Unauthorized: React.FC = () => {
         </button>
         <button
           onClick={() => navigate('/')}
-          className="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium shadow-lg shadow-indigo-600/20 transition-all duration-200 cursor-pointer"
+          className="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-medium shadow-lg shadow-indigo-600/20 transition-all duration-200 cursor-pointer"
         >
           Ir al Inicio
         </button>

@@ -14,6 +14,7 @@ interface MovingRequest {
   status: 'Pendiente' | 'Aprobada' | 'Rechazada';
   createdAt: string;
   notes?: string;
+  adminComment?: string;
 }
 
 export const Mudanzas: React.FC = () => {
@@ -25,6 +26,7 @@ export const Mudanzas: React.FC = () => {
   const [requests, setRequests] = useState<MovingRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'list' | 'request'>('list');
+  const [adminComments, setAdminComments] = useState<Record<string, string>>({});
 
   // Form State
   const [movingDate, setMovingDate] = useState('');
@@ -114,9 +116,14 @@ export const Mudanzas: React.FC = () => {
   };
 
   const handleApprove = (reqId: string) => {
+    const comment = adminComments[reqId]?.trim() || '';
     const updated = requests.map(r => {
       if (r.id === reqId) {
-        return { ...r, status: 'Aprobada' as const };
+        return { 
+          ...r, 
+          status: 'Aprobada' as const,
+          adminComment: comment || undefined
+        };
       }
       return r;
     });
@@ -125,9 +132,14 @@ export const Mudanzas: React.FC = () => {
   };
 
   const handleReject = (reqId: string) => {
+    const comment = adminComments[reqId]?.trim() || '';
     const updated = requests.map(r => {
       if (r.id === reqId) {
-        return { ...r, status: 'Rechazada' as const };
+        return { 
+          ...r, 
+          status: 'Rechazada' as const,
+          adminComment: comment || undefined
+        };
       }
       return r;
     });
@@ -262,7 +274,7 @@ export const Mudanzas: React.FC = () => {
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-xl shadow-lg"
+                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg"
               >
                 Solicitar Registro
               </button>
@@ -328,25 +340,44 @@ export const Mudanzas: React.FC = () => {
                           {r.notes}
                         </div>
                       )}
+                      {r.adminComment && (
+                        <div className="pt-1.5 border-t border-slate-900 mt-1.5 text-xxs text-amber-450 font-medium">
+                          <strong>Comentario Admin:</strong> {r.adminComment}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {isAdmin && r.status === 'Pendiente' && (
-                    <div className="pt-4 border-t border-slate-900 mt-4 flex justify-end gap-2">
-                      <button
-                        onClick={() => handleReject(r.id)}
-                        className="inline-flex items-center gap-0.5 px-3 py-1.5 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 font-bold text-xxs rounded-lg transition cursor-pointer"
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                        Rechazar
-                      </button>
-                      <button
-                        onClick={() => handleApprove(r.id)}
-                        className="inline-flex items-center gap-0.5 px-3 py-1.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 font-bold text-xxs rounded-lg transition cursor-pointer"
-                      >
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        Aprobar
-                      </button>
+                    <div className="pt-4 border-t border-slate-900 mt-4 space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-500 uppercase font-semibold block">
+                          Comentario de la decisión (Opcional)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Motivo de aprobación o rechazo..."
+                          value={adminComments[r.id] || ''}
+                          onChange={(e) => setAdminComments({ ...adminComments, [r.id]: e.target.value })}
+                          className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-lg outline-none text-xs transition"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleReject(r.id)}
+                          className="inline-flex items-center gap-0.5 px-3 py-1.5 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 font-bold text-xxs rounded-lg transition cursor-pointer"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          Rechazar
+                        </button>
+                        <button
+                          onClick={() => handleApprove(r.id)}
+                          className="inline-flex items-center gap-0.5 px-3 py-1.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 font-bold text-xxs rounded-lg transition cursor-pointer"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          Aprobar
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

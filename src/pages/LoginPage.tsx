@@ -183,12 +183,12 @@ export const LoginPage: React.FC = () => {
 
       {/* Decorative premium gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="w-full max-w-lg z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl shadow-xl shadow-indigo-600/20 mb-2">
+          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-tr from-indigo-600 to-blue-600 rounded-2xl shadow-xl shadow-indigo-600/20 mb-2">
             <Building2 className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl font-extrabold text-white tracking-tight">
@@ -270,7 +270,7 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:from-indigo-800 disabled:to-purple-800 disabled:text-slate-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/15 focus:outline-none transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:from-indigo-800 disabled:to-blue-800 disabled:text-slate-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/15 focus:outline-none transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? (
                     <>

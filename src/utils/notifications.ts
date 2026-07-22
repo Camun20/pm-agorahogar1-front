@@ -91,3 +91,23 @@ export const markAllNotificationsAsRead = (username: string, role: string, locat
     console.error('Error marking notifications as read:', e);
   }
 };
+
+export const markNotificationAsRead = (id: string, username: string) => {
+  const data = localStorage.getItem('lobbyapp_notifications');
+  if (!data) return;
+  try {
+    const list = JSON.parse(data) as AppNotification[];
+    const updated = list.map(n => {
+      if (n.id === id) {
+        if (!n.readBy.includes(username)) {
+          return { ...n, readBy: [...n.readBy, username] };
+        }
+      }
+      return n;
+    });
+    localStorage.setItem('lobbyapp_notifications', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
+  } catch (e) {
+    console.error('Error marking notification as read:', e);
+  }
+};

@@ -12,6 +12,9 @@ export interface User {
   password?: string;
   location?: string;
   phone?: string;
+  residentType?: 'Propietario' | 'Propietario y Residente';
+  tower?: string;
+  apartment?: string;
 }
 
 interface AuthContextType {

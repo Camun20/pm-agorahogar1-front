@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
   HelpCircle, Search, Plus, MessageSquare, CheckCircle, Clock,
-  ArrowUpRight, AlertCircle, Info, Inbox
+  ArrowUpRight, AlertCircle, Info, Inbox, FileSpreadsheet
 } from 'lucide-react';
 import { getFormattedNetworkTime } from '../../utils/time';
 import { addNotification } from '../../utils/notifications';
@@ -164,6 +164,36 @@ export const PQRS: React.FC = () => {
     setResponseText('');
   };
 
+  const exportToExcel = () => {
+    const headers = ['ID', 'Tipo', 'Asunto', 'Descripción', 'Residente', 'Ubicación', 'Estado', 'Fecha Registro', 'Respuesta Administrador', 'Fecha Respuesta'];
+    const rows = filteredPqrs.map(p => [
+      p.id,
+      p.type,
+      p.subject,
+      p.description.replace(/\r?\n/g, ' '),
+      p.residentName,
+      p.location,
+      p.status,
+      p.registeredAt,
+      p.response ? p.response.replace(/\r?\n/g, ' ') : '',
+      p.respondedAt || ''
+    ]);
+    
+    const csvContent = "\uFEFF" + [
+      headers.join(';'),
+      ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(';'))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `PQRS_Reporte_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner */}
@@ -270,7 +300,7 @@ export const PQRS: React.FC = () => {
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-xl shadow-lg"
+                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg"
               >
                 Radicar Solicitud
               </button>
@@ -283,18 +313,29 @@ export const PQRS: React.FC = () => {
           <div className="lg:col-span-2 space-y-4">
             <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Historial de Solicitudes</h2>
             
-            {/* Search */}
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                <Search className="w-4 h-4" />
-              </span>
-              <input
-                type="text"
-                placeholder="Buscar por asunto..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-slate-95 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl placeholder-slate-600 outline-none text-sm transition"
-              />
+            {/* Search and export */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <Search className="w-4 h-4" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Buscar por asunto..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-slate-95 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl placeholder-slate-600 outline-none text-sm transition"
+                />
+              </div>
+              {isAdmin && (
+                <button
+                  onClick={exportToExcel}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl transition cursor-pointer shadow"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>Exportar Excel</span>
+                </button>
+              )}
             </div>
 
             {/* List items */}

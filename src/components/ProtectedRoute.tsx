@@ -19,7 +19,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
         <div className="relative w-16 h-16">
           <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 border-r-transparent border-b-indigo-500/30 border-l-transparent animate-spin"></div>
-          <div className="absolute inset-2 rounded-full border-4 border-t-purple-500 border-r-transparent border-b-purple-500/30 border-l-transparent animate-spin animate-duration-1000 animate-reverse"></div>
+          <div className="absolute inset-2 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-blue-500/30 border-l-transparent animate-spin animate-duration-1000 animate-reverse"></div>
         </div>
         <p className="mt-4 text-slate-400 font-medium tracking-wide animate-pulse">
           Validando credenciales...

@@ -79,7 +79,7 @@ body.light textarea {
 body.light input:focus,
 body.light select:focus,
 body.light textarea:focus {
-  border-color: #8b5cf6 !important;
+  border-color: #3b82f6 !important;
 }
 
 body.light header.bg-slate-900\/40 {
@@ -118,21 +118,21 @@ body.light .shadow-xl {
 
 /* Header Banner Overrides (Purple to White gradient) */
 body.light .relative.overflow-hidden.bg-gradient-to-r {
-  background-image: linear-gradient(to right, #f3e8ff, #ffffff) !important;
-  border-color: #e9d5ff !important;
+  background-image: linear-gradient(to right, #dbeafe, #ffffff) !important;
+  border-color: #bfdbfe !important;
 }
 body.light .bg-gradient-to-r h1,
 body.light .bg-gradient-to-r h2,
 body.light .bg-gradient-to-r .text-white {
-  color: #6b21a8 !important;
+  color: #1e40af !important;
 }
 body.light .bg-gradient-to-r p,
 body.light .bg-gradient-to-r .text-slate-400 {
-  color: #701a75 !important;
+  color: #1e3a8a !important;
 }
 body.light .bg-gradient-to-r span.bg-indigo-500\/10 {
-  background-color: #faf5ff !important;
-  color: #8b5cf6 !important;
+  background-color: #eff6ff !important;
+  color: #3b82f6 !important;
   border-color: #ddd6fe !important;
 }
 
@@ -143,7 +143,7 @@ body.light a.bg-indigo-600,
 body.light .bg-indigo-600,
 body.light button.bg-white,
 body.light a.bg-white {
-  background-color: #a78bfa !important;
+  background-color: #60a5fa !important;
   color: #ffffff !important;
   border-color: #c084fc !important;
 }
@@ -152,7 +152,7 @@ body.light button.bg-indigo-700:hover,
 body.light a.bg-indigo-600:hover,
 body.light button.bg-white:hover,
 body.light a.bg-white:hover {
-  background-color: #8b5cf6 !important;
+  background-color: #3b82f6 !important;
 }
 body.light button.bg-slate-900,
 body.light button.bg-slate-850,
@@ -162,15 +162,15 @@ body.light button.bg-slate-800\/60,
 body.light button.border-slate-800,
 body.light button.border-slate-700,
 body.light .bg-slate-800\/60 {
-  background-color: #f3e8ff !important;
-  color: #6b21a8 !important;
-  border-color: #e9d5ff !important;
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
 }
 body.light button.bg-slate-900:hover,
 body.light button.bg-slate-850:hover,
 body.light button.bg-slate-800:hover {
-  background-color: #e9d5ff !important;
-  color: #6b21a8 !important;
+  background-color: #bfdbfe !important;
+  color: #1e40af !important;
 }
 
 /* Fully White Tables and Lists styling */
@@ -187,7 +187,7 @@ body.light .divide-slate-800 > * {
   border-color: #f1f5f9 !important;
 }
 body.light tr:hover {
-  background-color: #faf5ff !important;
+  background-color: #eff6ff !important;
 }
 body.light thead th,
 body.light th {
@@ -237,8 +237,8 @@ body.light .bg-red-500\/20 {
 }
 
 /* Active sidebar items text should be white */
-body.light .bg-gradient-to-r.from-indigo-600.to-purple-600,
-body.light .bg-gradient-to-r.from-indigo-600.to-purple-600 * {
+body.light .bg-gradient-to-r.from-indigo-600.to-blue-600,
+body.light .bg-gradient-to-r.from-indigo-600.to-blue-600 * {
   color: #ffffff !important;
 }
 
@@ -266,9 +266,9 @@ body.light .grid.grid-cols-2 .bg-slate-900\/80,
 body.light .grid.grid-cols-2 .bg-slate-900\/80 *,
 body.light .p-3.bg-slate-900\/60,
 body.light .p-3.bg-slate-900\/60 * {
-  background-color: #f3e8ff !important;
-  color: #6b21a8 !important;
-  border-color: #e9d5ff !important;
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
 }
 body.light .grid.grid-cols-2 .bg-slate-900\/80 .text-emerald-400 {
   color: #166534 !important;
@@ -277,11 +277,11 @@ body.light .grid.grid-cols-2 .bg-slate-900\/80 .text-emerald-400 {
 body.light .rounded-full.bg-slate-800,
 body.light .w-10.h-10.bg-slate-800,
 body.light .w-8.h-8.rounded-full.bg-slate-800 {
-  background-color: #f3e8ff !important;
-  color: #6b21a8 !important;
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
 }
 body.light .w-10.h-10.bg-slate-800 * {
-  color: #6b21a8 !important;
+  color: #1e40af !important;
 }
 
 /* Style for select options in dark mode (default) */

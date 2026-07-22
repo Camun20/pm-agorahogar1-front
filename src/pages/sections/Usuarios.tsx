@@ -28,6 +28,9 @@ export const Usuarios: React.FC = () => {
   const [role, setRole] = useState<UserRole>('Resident');
   const [location, setLocation] = useState('');
   const [phone, setPhone] = useState('');
+  const [residentType, setResidentType] = useState<'Propietario' | 'Propietario y Residente'>('Propietario');
+  const [tower, setTower] = useState('');
+  const [apartment, setApartment] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
@@ -58,6 +61,9 @@ export const Usuarios: React.FC = () => {
     // If ResidentialAdmin, default to Resident (which is valid).
     setRole('Resident');
     setLocation('');
+    setResidentType('Propietario');
+    setTower('');
+    setApartment('');
     setFormError(null);
     setFormSuccess(null);
     setIsModalOpen(true);
@@ -72,6 +78,20 @@ export const Usuarios: React.FC = () => {
     setPhone(user.phone || '');
     setRole(user.role);
     setLocation(user.location || '');
+    setResidentType(user.residentType || 'Propietario');
+    setTower(user.tower || '');
+    setApartment(user.apartment || '');
+    
+    if (user.role === 'Resident' && !user.tower && user.location) {
+      const match = user.location.match(/Torre\s*(\S+)\s*-\s*Apto\s*(\S+)/i);
+      if (match) {
+        setTower(match[1]);
+        setApartment(match[2]);
+      } else {
+        setTower(user.location);
+      }
+    }
+    
     setFormError(null);
     setFormSuccess(null);
     setIsModalOpen(true);
@@ -94,6 +114,15 @@ export const Usuarios: React.FC = () => {
       return;
     }
 
+    let finalLocation = location.trim();
+    if (role === 'Resident') {
+      if (!tower.trim() || !apartment.trim()) {
+        setFormError('Por favor completa la Torre y el Apartamento.');
+        return;
+      }
+      finalLocation = `Torre ${tower.trim()} - Apto ${apartment.trim()}`;
+    }
+
     const userData: User = {
       username: username.trim(),
       email: email.trim() || `${username.trim()}@lobbyapp.com`, // Auto-generated email fallback
@@ -102,7 +131,12 @@ export const Usuarios: React.FC = () => {
       password: password,
       phone: phone.trim(),
       // Location is ONLY saved for Resident role
-      ...(role === 'Resident' && location.trim() && { location: location.trim() })
+      ...(role === 'Resident' && {
+        location: finalLocation,
+        residentType,
+        tower: tower.trim(),
+        apartment: apartment.trim()
+      })
     };
 
     try {
@@ -192,7 +226,7 @@ export const Usuarios: React.FC = () => {
           </div>
           <button 
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/15 transition cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/15 transition cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Crear Usuario</span>
@@ -457,17 +491,67 @@ export const Usuarios: React.FC = () => {
 
               {/* Conditional Field: Ubicación (ONLY for Resident role) */}
               {role === 'Resident' && (
-                <div className="space-y-1.5 pt-1.5">
-                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                    Ubicación (ej: Torre 3 - Apto 402)
-                  </label>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="ej: Torre 3 - Apto 402"
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
-                  />
+                <div className="space-y-4 pt-1.5 border-t border-slate-800/60 mt-2">
+                  {/* Radio buttons for Resident Type */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                      Tipo de Residente *
+                    </label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="residentType"
+                          value="Propietario"
+                          checked={residentType === 'Propietario'}
+                          onChange={() => setResidentType('Propietario')}
+                          className="accent-indigo-500"
+                        />
+                        Propietario
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="residentType"
+                          value="Propietario y Residente"
+                          checked={residentType === 'Propietario y Residente'}
+                          onChange={() => setResidentType('Propietario y Residente')}
+                          className="accent-indigo-500"
+                        />
+                        Propietario y Residente
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Torre & Apartamento */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                        Torre *
+                      </label>
+                      <input
+                        type="text"
+                        value={tower}
+                        onChange={(e) => setTower(e.target.value)}
+                        placeholder="ej: 3"
+                        className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
+                        required={role === 'Resident'}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                        Apartamento *
+                      </label>
+                      <input
+                        type="text"
+                        value={apartment}
+                        onChange={(e) => setApartment(e.target.value)}
+                        placeholder="ej: 402"
+                        className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl outline-none text-sm transition"
+                        required={role === 'Resident'}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -496,7 +580,7 @@ export const Usuarios: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-600/15 transition cursor-pointer"
+                  className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-600/15 transition cursor-pointer"
                 >
                   {editingUser ? 'Guardar Cambios' : 'Registrar'}
                 </button>

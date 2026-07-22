@@ -331,7 +331,7 @@ export const Reservas: React.FC = () => {
             >
               {(!isAdmin && !isSecurity) ? 'Solicitudes' : 'Agenda Aprobada'}
             </button>
-            {!isAdmin && (
+            {user?.role === 'Resident' && (
               <button
                 onClick={() => setActiveTab('request')}
                 className={`px-3.5 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer ${
@@ -508,20 +508,20 @@ export const Reservas: React.FC = () => {
 
                 {/* Real-time Dynamic Payment Breakdown */}
                 {selectedSpaceId && (
-                  <div className="p-4 bg-purple-50 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-900/40 rounded-xl space-y-2 text-xs">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40 rounded-xl space-y-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-purple-700 dark:text-purple-300">Tarifa por Hora:</span>
-                      <span className="text-purple-950 dark:text-purple-200 font-bold">
+                      <span className="text-blue-700 dark:text-blue-300">Tarifa por Hora:</span>
+                      <span className="text-blue-950 dark:text-blue-200 font-bold">
                         {getSelectedSpaceCost() > 0 ? `$${getSelectedSpaceCost().toLocaleString()} COP` : 'Gratuito'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-purple-700 dark:text-purple-300">Duración:</span>
-                      <span className="text-purple-950 dark:text-purple-200 font-bold">{getHoursCount()} hora(s)</span>
+                      <span className="text-blue-700 dark:text-blue-300">Duración:</span>
+                      <span className="text-blue-950 dark:text-blue-200 font-bold">{getHoursCount()} hora(s)</span>
                     </div>
-                    <div className="flex justify-between border-t border-purple-200/80 dark:border-purple-850 pt-2 text-sm font-extrabold">
-                      <span className="text-purple-800 dark:text-purple-300">Total a Pagar:</span>
-                      <span className="text-purple-700 dark:text-purple-400 font-mono">
+                    <div className="flex justify-between border-t border-blue-200/80 dark:border-blue-850 pt-2 text-sm font-extrabold">
+                      <span className="text-blue-800 dark:text-blue-300">Total a Pagar:</span>
+                      <span className="text-blue-700 dark:text-blue-400 font-mono">
                         {getHoursCount() * getSelectedSpaceCost() > 0 
                           ? `$${(getHoursCount() * getSelectedSpaceCost()).toLocaleString()} COP`
                           : 'Gratuito'}

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, type UserRole } from '../context/AuthContext';
-import { getNotifications, markAllNotificationsAsRead } from '../utils/notifications';
+import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '../utils/notifications';
 import {
-  Menu, X, Bell, LogOut, User as UserIcon, Building, ChevronLeft, ChevronRight, Home,
+  Menu, X, Bell, LogOut, User as UserIcon, ChevronLeft, ChevronRight, Home,
   ClipboardList, Users, Truck, DollarSign, FileSpreadsheet, HelpCircle,
-  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Key, Sun, Moon
+  Presentation, FolderGit, Ban, Lightbulb, Car, CalendarDays, Archive, Key, Sun, Moon, Megaphone
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -58,6 +58,30 @@ export const MainLayout: React.FC = () => {
     }
   };
 
+  const getNotificationPath = (title: string): string => {
+    const t = title.toLowerCase();
+    if (t.includes('recibo')) return '/recibos-publicos';
+    if (t.includes('visita')) return '/visitantes';
+    if (t.includes('domicilio')) return '/domicilios';
+    if (t.includes('sanción') || t.includes('sancion')) return '/sanciones';
+    if (t.includes('saldo')) return '/saldos';
+    if (t.includes('reserva')) return '/reservas';
+    if (t.includes('pqrs')) return '/pqrs';
+    if (t.includes('mudanza')) return '/mudanzas';
+    if (t.includes('encuesta')) return '/encuestas';
+    if (t.includes('documento')) return '/documentos';
+    if (t.includes('cartelera')) return '/cartelera';
+    return '/';
+  };
+
+  const handleNotificationClick = (n: any) => {
+    if (user) {
+      markNotificationAsRead(n.id, user.username);
+    }
+    setIsNotificationsOpen(false);
+    navigate(getNotificationPath(n.title));
+  };
+
   // Estados de interfaz interactiva
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -82,6 +106,12 @@ export const MainLayout: React.FC = () => {
       name: 'Gestión Usuarios',
       path: '/usuarios',
       icon: <Users className="w-5 h-5" />,
+      allowedRoles: ['SuperAdmin', 'ResidentialAdmin'],
+    },
+    {
+      name: 'Anuncios',
+      path: '/anuncios',
+      icon: <Megaphone className="w-5 h-5" />,
       allowedRoles: ['SuperAdmin', 'ResidentialAdmin'],
     },
     {
@@ -194,11 +224,10 @@ export const MainLayout: React.FC = () => {
         {/* Sidebar Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
           <Link to="/" className="flex items-center gap-2.5 overflow-hidden">
-            <Building className="w-6 h-6 text-indigo-500 shrink-0" />
-            {!isSidebarCollapsed && (
-              <span className="font-bold text-white text-lg tracking-tight select-none whitespace-nowrap">
-                Lobby<span className="text-indigo-400">App</span>
-              </span>
+            {isSidebarCollapsed ? (
+              <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain shrink-0 rounded-lg" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            ) : (
+              <img src="/logo.png" alt="Logo" className="h-8 w-auto max-w-[150px] object-contain shrink-0" onError={(e) => { e.currentTarget.src = 'https://placehold.co/150x32/0f172a/white?text=Logo'; }} />
             )}
           </Link>
           <button 
@@ -219,7 +248,7 @@ export const MainLayout: React.FC = () => {
                 to={item.path}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative ${
                   isActive 
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/15' 
+                    ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg shadow-indigo-600/15' 
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                 }`}
               >
@@ -263,8 +292,7 @@ export const MainLayout: React.FC = () => {
           <div className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full animate-slide-in">
             <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
               <Link to="/" onClick={() => setIsMobileSidebarOpen(false)} className="flex items-center gap-2">
-                <Building className="w-6 h-6 text-indigo-500" />
-                <span className="font-bold text-white text-lg">LobbyApp</span>
+                <img src="/logo.png" alt="Logo" className="h-8 w-auto max-w-[120px] object-contain shrink-0" onError={(e) => { e.currentTarget.src = 'https://placehold.co/120x32/0f172a/white?text=Logo'; }} />
               </Link>
               <button 
                 onClick={() => setIsMobileSidebarOpen(false)}
@@ -283,7 +311,7 @@ export const MainLayout: React.FC = () => {
                     onClick={() => setIsMobileSidebarOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                       isActive 
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/15' 
+                        ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg shadow-indigo-600/15' 
                         : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                     }`}
                   >
@@ -328,10 +356,9 @@ export const MainLayout: React.FC = () => {
 
           {/* Center: Brand App Name (Typography elegante) */}
           <div className="flex-1 text-center md:text-left md:pl-2">
-            <Link to="/" className="inline-block">
-              <h2 className="text-base sm:text-lg font-bold tracking-tight text-white font-sans bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">
-                LobbyApp — Gestión Residencial
-              </h2>
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/logo.png" alt="Logo" className="h-6 w-auto object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              <span className="text-xs sm:text-sm font-semibold tracking-wider text-slate-300 font-sans uppercase">Gestión Residencial</span>
             </Link>
           </div>
 
@@ -384,9 +411,13 @@ export const MainLayout: React.FC = () => {
                       notifications.map((n) => {
                         const isUnread = user && !n.readBy.includes(user.username);
                         return (
-                          <div key={n.id} className={`p-2.5 rounded-xl transition text-xs space-y-1 ${
-                            isUnread ? 'bg-indigo-600/10 border border-indigo-500/20' : 'hover:bg-slate-800/50'
-                          }`}>
+                          <div 
+                            key={n.id} 
+                            onClick={() => handleNotificationClick(n)}
+                            className={`p-2.5 rounded-xl transition text-xs space-y-1 cursor-pointer ${
+                              isUnread ? 'bg-indigo-600/10 border border-indigo-500/20' : 'hover:bg-slate-800/50'
+                            }`}
+                          >
                             <div className="flex justify-between font-medium text-slate-200">
                               <span className={isUnread ? 'text-indigo-400 font-bold' : ''}>{n.title}</span>
                               <span className="text-slate-500 text-xxs shrink-0 ml-2">{n.time}</span>
@@ -414,7 +445,7 @@ export const MainLayout: React.FC = () => {
                   isProfileOpen ? 'border-indigo-500 bg-slate-800' : ''
                 }`}
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-xs select-none">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center font-bold text-white text-xs select-none">
                   {user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'US'}
                 </div>
               </button>
@@ -600,7 +631,7 @@ export const MainLayout: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs rounded-xl shadow-lg transition cursor-pointer"
+                    className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg transition cursor-pointer"
                   >
                     Guardar
                   </button>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { showConfirm } from '../../utils/alerts';
 import {
   Presentation, Search, Plus, CheckCircle, XCircle, Eye,
-  Contact, MapPin, AlertCircle, Info, Inbox
+  Contact, MapPin, AlertCircle, Info, Inbox, Trash2
 } from 'lucide-react';
 
 interface CarteleraAd {
@@ -129,6 +130,19 @@ export const Cartelera: React.FC = () => {
     });
     setAds(updated);
     localStorage.setItem('lobbyapp_cartelera', JSON.stringify(updated));
+  };
+
+  const handleDelete = async (adId: string) => {
+    const isConfirmed = await showConfirm(
+      '¿Eliminar anuncio?',
+      '¿Estás seguro de que deseas eliminar este anuncio? Esta acción no se puede deshacer.',
+      'Sí, eliminar'
+    );
+    if (isConfirmed) {
+      const updated = ads.filter(ad => ad.id !== adId);
+      setAds(updated);
+      localStorage.setItem('lobbyapp_cartelera', JSON.stringify(updated));
+    }
   };
 
   // Lists filtered by search and tab
@@ -343,24 +357,36 @@ export const Cartelera: React.FC = () => {
                       {ad.contact}
                     </span>
 
-                    {activeTab === 'moderate' && isAdmin && (
-                      <div className="inline-flex gap-2">
+                    <div className="inline-flex gap-2">
+                      {activeTab === 'moderate' && isAdmin && (
+                        <>
+                          <button
+                            onClick={() => handleReject(ad.id)}
+                            className="inline-flex items-center gap-0.5 px-3 py-1 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 font-bold text-xxs rounded-lg transition cursor-pointer"
+                          >
+                            <XCircle className="w-3 h-3" />
+                            Rechazar
+                          </button>
+                          <button
+                            onClick={() => handleApprove(ad.id)}
+                            className="inline-flex items-center gap-0.5 px-3 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 font-bold text-xxs rounded-lg transition cursor-pointer"
+                          >
+                            <CheckCircle className="w-3 h-3" />
+                            Aprobar
+                          </button>
+                        </>
+                      )}
+                      {(isAdmin || ad.location === user?.location) && (
                         <button
-                          onClick={() => handleReject(ad.id)}
-                          className="inline-flex items-center gap-0.5 px-3 py-1 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 font-bold text-xxs rounded-lg transition cursor-pointer"
+                          onClick={() => handleDelete(ad.id)}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 font-bold text-xxs rounded-lg transition cursor-pointer"
+                          title="Eliminar Anuncio"
                         >
-                          <XCircle className="w-3 h-3" />
-                          Rechazar
+                          <Trash2 className="w-3 h-3" />
+                          Eliminar
                         </button>
-                        <button
-                          onClick={() => handleApprove(ad.id)}
-                          className="inline-flex items-center gap-0.5 px-3 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 font-bold text-xxs rounded-lg transition cursor-pointer"
-                        >
-                          <CheckCircle className="w-3 h-3" />
-                          Aprobar
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))

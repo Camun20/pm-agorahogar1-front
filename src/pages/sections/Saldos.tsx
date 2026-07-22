@@ -38,9 +38,10 @@ export const Saldos: React.FC = () => {
   const [residentName, setResidentName] = useState('');
   const [locationInput, setLocationInput] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [charges, setCharges] = useState<BalanceCharge[]>([
-    { concept: 'Cuota Administración', amount: 0 }
-  ]);
+  const [pendingAmount, setPendingAmount] = useState<number | ''>('');
+  const [month, setMonth] = useState('Enero');
+  const [year, setYear] = useState('2026');
+  const [attachedFileName, setAttachedFileName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -102,59 +103,61 @@ export const Saldos: React.FC = () => {
     return matchesSearch;
   });
 
-  const handleAddChargeField = () => {
-    setCharges([...charges, { concept: '', amount: 0 }]);
-  };
-
-  const handleRemoveChargeField = (index: number) => {
-    if (charges.length <= 1) return;
-    setCharges(charges.filter((_, i) => i !== index));
-  };
-
-  const handleChargeTextChange = (index: number, val: string) => {
-    const updated = [...charges];
-    updated[index].concept = val;
-    setCharges(updated);
-  };
-
-  const handleChargeAmountChange = (index: number, val: number) => {
-    const updated = [...charges];
-    updated[index].amount = val;
-    setCharges(updated);
-  };
-
   const handleRegisterBalance = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
-    if (!residentUsername.trim() || !residentName.trim() || !locationInput.trim() || !dueDate) {
+    if (!residentUsername.trim() || !residentName.trim() || !locationInput.trim() || !dueDate || !pendingAmount || !attachedFileName.trim()) {
       setFormError('Por favor completa todos los campos obligatorios (*).');
       return;
     }
 
-    const validCharges = charges.filter(c => c.concept.trim() && c.amount > 0);
-    if (validCharges.length === 0) {
-      setFormError('Por favor registra al menos un cargo con valor mayor a 0.');
+    const amountNum = Number(pendingAmount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      setFormError('Por favor ingresa un valor de saldo válido mayor a 0.');
       return;
     }
 
-    const totalBalance = validCharges.reduce((sum, c) => sum + c.amount, 0);
-
+    const conceptStr = `Administración ${month} ${year}`;
     const newBalance: UserBalance = {
       id: `bal_${Date.now()}`,
       username: residentUsername.trim().toLowerCase(),
       residentName: residentName.trim(),
       location: locationInput.trim(),
-      charges: validCharges,
-      totalBalance,
+      charges: [{ concept: conceptStr, amount: amountNum }],
+      totalBalance: amountNum,
       status: 'Pendiente',
       dueDate
     };
 
+    // Save statement file in lobbyapp_statements (same document model)
+    const statementFileObj = {
+      id: `st_${Date.now()}`,
+      name: attachedFileName.trim().endsWith('.pdf') || attachedFileName.trim().endsWith('.xlsx') ? attachedFileName.trim() : `${attachedFileName.trim()}.pdf`,
+      month: `${month} ${year}`,
+      uploadedAt: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      fileSize: '1.2 MB',
+      uploaderName: `${user?.name || 'Administración'} (${user?.role || 'Staff'})`,
+      residentLocation: locationInput.trim()
+    };
+
+    // Load existing statements
+    let statementsList = [];
+    const savedStatements = localStorage.getItem('lobbyapp_statements');
+    if (savedStatements) {
+      try {
+        statementsList = JSON.parse(savedStatements);
+      } catch (err) {
+        statementsList = [];
+      }
+    }
+    statementsList = [statementFileObj, ...statementsList];
+    localStorage.setItem('lobbyapp_statements', JSON.stringify(statementsList));
+
     // Dispatch Resident Notification
     addNotification(
       'Estado de Cuenta Actualizado 💵',
-      `Se ha cargado un nuevo cobro de administración por valor de $${newBalance.totalBalance.toLocaleString()} COP. Límite de pago: ${newBalance.dueDate}.`,
+      `Se ha cargado un nuevo cobro de administración por valor de $${newBalance.totalBalance.toLocaleString()} COP. Límite de pago: ${newBalance.dueDate}. Documento adjunto: ${statementFileObj.name}`,
       { location: newBalance.location }
     );
 
@@ -167,7 +170,10 @@ export const Saldos: React.FC = () => {
     setResidentName('');
     setLocationInput('');
     setDueDate('');
-    setCharges([{ concept: 'Cuota Administración', amount: 0 }]);
+    setPendingAmount('');
+    setMonth('Enero');
+    setYear('2026');
+    setAttachedFileName('');
     setActiveTab('list');
   };
 
@@ -282,59 +288,77 @@ export const Saldos: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Límite Pago *</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                onClick={(e) => e.currentTarget.showPicker()}
-                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
-                required
-              />
+            {/* Mes and Año selection */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 uppercase font-semibold">Mes de Cobro *</label>
+                <select
+                  value={month}
+                  onChange={(e) => setMonth(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                  required
+                >
+                  {['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'].map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 uppercase font-semibold">Año *</label>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                  required
+                >
+                  {['2026', '2027', '2028', '2029', '2030'].map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className="border-t border-slate-800/80 pt-4 space-y-3">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xs text-indigo-400 uppercase font-bold">Conceptos de Cobro</h3>
-                <button
-                  type="button"
-                  onClick={handleAddChargeField}
-                  className="text-xxs bg-indigo-950/40 border border-indigo-500/20 text-indigo-300 px-2 py-1 rounded-md transition"
-                >
-                  + Añadir Concepto
-                </button>
+            {/* Valor and Due date */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 uppercase font-semibold">Valor del Saldo ($ COP) *</label>
+                <input
+                  type="number"
+                  placeholder="ej. 250000"
+                  value={pendingAmount}
+                  onChange={(e) => setPendingAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                  className="w-full px-4 py-2.5 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                  required
+                />
               </div>
 
-              {charges.map((c, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={c.concept}
-                    onChange={(e) => handleChargeTextChange(index, e.target.value)}
-                    placeholder="Concepto (ej. Exp. áreas comunes)"
-                    className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
-                    required
-                  />
-                  <input
-                    type="number"
-                    value={c.amount || ''}
-                    onChange={(e) => handleChargeAmountChange(index, parseFloat(e.target.value))}
-                    placeholder="Valor ($)"
-                    className="w-32 px-3 py-2 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg outline-none text-xs text-slate-100"
-                    required
-                  />
-                  {charges.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveChargeField(index)}
-                      className="text-slate-500 hover:text-red-400 transition"
-                    >
-                      Remover
-                    </button>
-                  )}
-                </div>
-              ))}
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 uppercase font-semibold">Fecha Límite Pago *</label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker()}
+                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100 cursor-pointer"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Document attachment */}
+            <div className="space-y-1.5 border-t border-slate-800/80 pt-4">
+              <label className="text-xs text-slate-400 uppercase font-semibold block">Adjuntar Documento de Estado de Cuenta *</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="ej. Estado-Cuenta-Julio.pdf (o nombre descriptivo)"
+                  value={attachedFileName}
+                  onChange={(e) => setAttachedFileName(e.target.value)}
+                  className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
+                  required
+                />
+              </div>
+              <p className="text-[10px] text-slate-500">Este documento se publicará y sincronizará de forma transparente en la sección de Estados de Cuenta.</p>
             </div>
 
             {formError && (
@@ -354,7 +378,7 @@ export const Saldos: React.FC = () => {
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-xl shadow-lg"
+                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg"
               >
                 Cargar Cuenta
               </button>
