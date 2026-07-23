@@ -374,14 +374,22 @@ export const MiHogar: React.FC = () => {
                 {hasDisability && (
                   <div className="space-y-1.5 pl-6 animate-fade-in">
                     <label className="text-xs text-slate-400 uppercase font-semibold">¿Cuál? *</label>
-                    <input
-                      type="text"
+                    <select
                       value={disabilityType}
                       onChange={(e) => setDisabilityType(e.target.value)}
-                      placeholder="ej. Visual, Auditiva, Motriz..."
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100"
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100 cursor-pointer"
                       required={hasDisability}
-                    />
+                    >
+                      <option value="">-- Selecciona Discapacidad --</option>
+                      <option value="Física / Motora">Física / Motora</option>
+                      <option value="Sensorial (Visual)">Sensorial (Visual)</option>
+                      <option value="Sensorial (Auditiva)">Sensorial (Auditiva)</option>
+                      <option value="Sensorial (Sordoceguera)">Sensorial (Sordoceguera)</option>
+                      <option value="Intelectual / Cognitiva">Intelectual / Cognitiva</option>
+                      <option value="Mental / Psicosocial">Mental / Psicosocial</option>
+                      <option value="Múltiple">Múltiple</option>
+                      <option value="Otra">Otra</option>
+                    </select>
                   </div>
                 )}
               </div>

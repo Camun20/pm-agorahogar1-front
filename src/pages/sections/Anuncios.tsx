@@ -24,7 +24,6 @@ export const Anuncios: React.FC = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [type, setType] = useState<AdminAnnouncement['type']>('Anuncio');
-  const [imageUrlInput, setImageUrlInput] = useState('');
   const [imagesList, setImagesList] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -71,10 +70,21 @@ export const Anuncios: React.FC = () => {
     }
   }, []);
 
-  const handleAddImage = () => {
-    if (!imageUrlInput.trim()) return;
-    setImagesList([...imagesList, imageUrlInput.trim()]);
-    setImageUrlInput('');
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setImagesList((prev) => [...prev, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    // Reset file input value
+    e.target.value = '';
   };
 
   const handleRemoveImage = (index: number) => {
@@ -91,7 +101,7 @@ export const Anuncios: React.FC = () => {
     }
 
     if (type === 'Carrusel de Imágenes' && imagesList.length === 0) {
-      setFormError('Para el carrusel de imágenes, debes ingresar al menos una URL de imagen.');
+      setFormError('Para el carrusel de imágenes, debes subir al menos una imagen.');
       return;
     }
 
@@ -113,7 +123,6 @@ export const Anuncios: React.FC = () => {
     setContent('');
     setType('Anuncio');
     setImagesList([]);
-    setImageUrlInput('');
     setActiveTab('list');
     showSuccess('Publicado', 'El anuncio administrativo ha sido publicado con éxito.');
   };
@@ -219,43 +228,41 @@ export const Anuncios: React.FC = () => {
 
             {/* Images section for Carousel */}
             {type === 'Carrusel de Imágenes' && (
-              <div className="border-t border-slate-800 pt-4 space-y-3">
+              <div className="border-t border-slate-800 pt-4 space-y-4">
                 <h3 className="text-xs text-indigo-400 uppercase font-bold">Imágenes del Carrusel</h3>
                 
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={imageUrlInput}
-                    onChange={(e) => setImageUrlInput(e.target.value)}
-                    placeholder="Pega la URL de una imagen (Unsplash, etc.)"
-                    className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-xs text-slate-100"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddImage}
-                    className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition cursor-pointer"
-                  >
-                    Agregar
-                  </button>
+                <div className="space-y-2">
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-indigo-500/40 bg-slate-955 hover:bg-slate-900/45 p-6 rounded-2xl cursor-pointer transition text-slate-400 hover:text-slate-300">
+                    <ImageIcon className="w-8 h-8 text-indigo-400 mb-2" />
+                    <span className="text-xs font-bold">Seleccionar Imágenes desde tu Equipo</span>
+                    <span className="text-[10px] text-slate-500 mt-1">Formatos soportados: JPG, PNG, WEBP (múltiple)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
 
-                <div className="space-y-2">
-                  {imagesList.map((url, index) => (
-                    <div key={index} className="flex justify-between items-center bg-slate-950 p-2.5 border border-slate-800 rounded-xl text-xxs">
-                      <span className="truncate text-slate-400 flex items-center gap-1.5">
-                        <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />
-                        {url}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="text-red-400 hover:text-red-300 font-semibold"
-                      >
-                        Remover
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                {imagesList.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                    {imagesList.map((url, index) => (
+                      <div key={index} className="relative aspect-video rounded-xl overflow-hidden border border-slate-850 bg-slate-950 group">
+                        <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-1.5 right-1.5 p-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg transition opacity-100 sm:opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
+                          title="Eliminar Imagen"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

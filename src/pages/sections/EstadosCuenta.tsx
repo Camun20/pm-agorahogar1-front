@@ -78,8 +78,20 @@ export const EstadosCuenta: React.FC = () => {
   }, []);
 
   const filteredStatements = statements.filter(s => {
-    const term = searchTerm.toLowerCase();
-    const matchesSearch = s.name.toLowerCase().includes(term) || s.month.toLowerCase().includes(term);
+    const term = searchTerm.toLowerCase().trim();
+    
+    // Find matching residents for this location
+    const matchingUsers = users.filter(u => u.location === s.residentLocation);
+    const matchesResidentInfo = matchingUsers.some(u => 
+      u.name.toLowerCase().includes(term) || 
+      u.username.toLowerCase().includes(term)
+    );
+
+    const matchesSearch = 
+      s.name.toLowerCase().includes(term) || 
+      s.month.toLowerCase().includes(term) ||
+      s.residentLocation.toLowerCase().includes(term) ||
+      matchesResidentInfo;
 
     // Si es residente, solo ve sus estados de cuenta asociados a su casa/unidad
     if (user?.role === 'Resident') {

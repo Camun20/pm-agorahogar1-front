@@ -187,20 +187,17 @@ export const LoginPage: React.FC = () => {
 
       <div className="w-full max-w-lg z-10 space-y-6">
         {/* Brand Header */}
-        <div className="text-center space-y-2 flex flex-col items-center">
+        <div className="text-center flex flex-col items-center pb-2">
           <img 
             src={theme === 'light' ? '/logo1.png' : '/logo.png'} 
             alt="Logo" 
-            className="h-16 w-auto object-contain mb-2" 
+            className="h-28 w-auto object-contain" 
             onError={(e) => { 
               e.currentTarget.src = theme === 'light' 
-                ? 'https://placehold.co/180x64/f1f5f9/0f172a?text=Logo' 
-                : 'https://placehold.co/180x64/0f172a/white?text=Logo'; 
+                ? 'https://placehold.co/240x112/f1f5f9/0f172a?text=Logo' 
+                : 'https://placehold.co/240x112/0f172a/white?text=Logo'; 
             }} 
           />
-          <p className="text-slate-400 text-sm max-w-sm mx-auto">
-            Sistema Integrado de Administración y Gestión Residencial
-          </p>
         </div>
 
         {/* Form Container Card */}

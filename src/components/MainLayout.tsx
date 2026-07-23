@@ -58,19 +58,24 @@ export const MainLayout: React.FC = () => {
     }
   };
 
-  const getNotificationPath = (title: string): string => {
-    const t = title.toLowerCase();
-    if (t.includes('recibo')) return '/recibos-publicos';
-    if (t.includes('visita')) return '/visitantes';
-    if (t.includes('domicilio')) return '/domicilios';
-    if (t.includes('sanción') || t.includes('sancion') || t.includes('multa')) return '/sanciones';
-    if (t.includes('saldo') || t.includes('cuenta') || t.includes('pago')) return '/saldos';
-    if (t.includes('reserva')) return '/reservas';
-    if (t.includes('pqrs')) return '/pqrs';
-    if (t.includes('mudanza')) return '/mudanzas';
-    if (t.includes('encuesta')) return '/encuestas';
-    if (t.includes('documento')) return '/documentos';
-    if (t.includes('cartelera')) return '/cartelera';
+  const getNotificationPath = (title: string, description: string = ''): string => {
+    const clean = (str: string) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const t = clean(title);
+    const d = clean(description);
+    
+    const check = (word: string) => t.includes(word) || d.includes(word);
+    
+    if (check('recibo')) return '/recibos-publicos';
+    if (check('visita')) return '/visitantes';
+    if (check('domicilio')) return '/domicilios';
+    if (check('sancion') || check('multa')) return '/sanciones';
+    if (check('saldo') || check('cuenta') || check('pago')) return '/saldos';
+    if (check('reserva')) return '/reservas';
+    if (check('pqrs') || check('peticion') || check('queja') || check('reclamo')) return '/pqrs';
+    if (check('mudanza')) return '/mudanzas';
+    if (check('encuesta') || check('votacion')) return '/encuestas';
+    if (check('documento')) return '/documentos';
+    if (check('cartelera') || check('anuncio')) return '/cartelera';
     return '/';
   };
 
@@ -79,7 +84,7 @@ export const MainLayout: React.FC = () => {
       markNotificationAsRead(n.id, user.username);
     }
     setIsNotificationsOpen(false);
-    const path = getNotificationPath(n.title);
+    const path = getNotificationPath(n.title, n.description);
     setTimeout(() => {
       navigate(path);
     }, 50);
