@@ -65,7 +65,7 @@ export const MainLayout: React.FC = () => {
     
     const check = (word: string) => t.includes(word) || d.includes(word);
     
-    if (check('sancion') || check('multa')) return '/sanciones';
+    if (check('sancion') || check('multa') || check('novedad')) return '/sanciones';
     if (check('recibo') || check('factura')) return '/recibos-publicos';
     if (check('visita')) return '/visitantes';
     if (check('domicilio') || check('paquete')) return '/domicilios';
