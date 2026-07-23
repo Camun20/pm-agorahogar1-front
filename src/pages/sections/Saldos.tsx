@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
   DollarSign, Search, Plus, Receipt, ArrowRight,
-  TrendingUp, CreditCard, Info, AlertCircle, FileSpreadsheet
+  TrendingUp, CreditCard, Info, AlertCircle, FileSpreadsheet, Trash2
 } from 'lucide-react';
 import { addNotification } from '../../utils/notifications';
 import { showConfirm, showSuccess } from '../../utils/alerts';
@@ -202,6 +202,21 @@ export const Saldos: React.FC = () => {
         setSelectedBalance(null);
       }
     }
+  };
+
+  const handleDeleteBalance = async (balanceId: string) => {
+    const confirmed = await showConfirm(
+      '¿Eliminar balance?',
+      '¿Estás seguro de que deseas eliminar este registro de cobro? El residente dejará de ver este cobro pendiente.',
+      'Sí, eliminar'
+    );
+    if (!confirmed) return;
+
+    const updated = balances.filter(b => b.id !== balanceId);
+    setBalances(updated);
+    localStorage.setItem('lobbyapp_balances', JSON.stringify(updated));
+    setSelectedBalance(null);
+    showSuccess('Eliminado', 'El balance ha sido eliminado correctamente.');
   };
 
   return (
@@ -491,6 +506,16 @@ export const Saldos: React.FC = () => {
                     <CreditCard className="w-4 h-4" />
                     Pagar Saldo Seguro (PSE)
                     <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
+                {isBillingStaff && (
+                  <button
+                    onClick={() => handleDeleteBalance(selectedBalance.id)}
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-red-650/15 hover:bg-red-600 border border-red-500/20 text-red-400 hover:text-white font-bold text-xs rounded-xl shadow-lg transition cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Eliminar Cobro / Saldo
                   </button>
                 )}
               </div>

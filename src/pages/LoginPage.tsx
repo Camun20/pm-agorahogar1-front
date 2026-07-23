@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { showSuccess } from '../utils/alerts';
 import { 
@@ -10,10 +10,6 @@ import {
 export const LoginPage: React.FC = () => {
   const { login, error: authError, isLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Redirect back to original route or dashboard
-  const from = (location.state as any)?.from?.pathname || '/';
 
   // Login States
   const [username, setUsername] = useState('');
@@ -65,7 +61,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(username, password);
-      navigate(from, { replace: true });
+      navigate('/', { replace: true });
     } catch (err) {
       // Auth error is captured in context
     }

@@ -65,15 +65,15 @@ export const MainLayout: React.FC = () => {
     
     const check = (word: string) => t.includes(word) || d.includes(word);
     
-    if (check('recibo')) return '/recibos-publicos';
-    if (check('visita')) return '/visitantes';
-    if (check('domicilio')) return '/domicilios';
     if (check('sancion') || check('multa')) return '/sanciones';
-    if (check('saldo') || check('cuenta') || check('pago')) return '/saldos';
+    if (check('recibo') || check('factura')) return '/recibos-publicos';
+    if (check('visita')) return '/visitantes';
+    if (check('domicilio') || check('paquete')) return '/domicilios';
     if (check('reserva')) return '/reservas';
     if (check('pqrs') || check('peticion') || check('queja') || check('reclamo')) return '/pqrs';
     if (check('mudanza')) return '/mudanzas';
     if (check('encuesta') || check('votacion')) return '/encuestas';
+    if (check('saldo') || check('cuenta') || check('pago')) return '/saldos';
     if (check('documento')) return '/documentos';
     if (check('cartelera') || check('anuncio')) return '/cartelera';
     return '/';
