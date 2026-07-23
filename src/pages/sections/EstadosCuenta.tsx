@@ -100,6 +100,11 @@ export const EstadosCuenta: React.FC = () => {
     return matchesSearch;
   });
 
+  const getResidentName = (location: string) => {
+    const found = users.find(u => u.role === 'Resident' && u.location === location);
+    return found ? found.name : 'Residente No Identificado';
+  };
+
   const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
@@ -325,9 +330,9 @@ export const EstadosCuenta: React.FC = () => {
                     <div className="space-y-1">
                       <h4 className="font-bold text-slate-200 text-sm line-clamp-2 leading-relaxed">{st.name}</h4>
                       <p className="text-[10px] text-slate-500">Cargado: {st.uploadedAt}</p>
-                      {isBillingStaff && (
-                        <p className="text-[10px] text-indigo-400/90 font-medium">Asignado: {st.residentLocation}</p>
-                      )}
+                      <p className="text-[10px] text-indigo-400/90 font-semibold">
+                        Residente: {getResidentName(st.residentLocation)} ({st.residentLocation})
+                      </p>
                     </div>
                   </div>
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
   DollarSign, Search, Plus, Receipt, ArrowRight,
-  TrendingUp, CreditCard, Info, AlertCircle
+  TrendingUp, CreditCard, Info, AlertCircle, FileSpreadsheet
 } from 'lucide-react';
 import { addNotification } from '../../utils/notifications';
 import { showConfirm, showSuccess } from '../../utils/alerts';
@@ -349,16 +349,24 @@ export const Saldos: React.FC = () => {
             <div className="space-y-1.5 border-t border-slate-800/80 pt-4">
               <label className="text-xs text-slate-400 uppercase font-semibold block">Adjuntar Documento de Estado de Cuenta *</label>
               <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="ej. Estado-Cuenta-Julio.pdf (o nombre descriptivo)"
-                  value={attachedFileName}
-                  onChange={(e) => setAttachedFileName(e.target.value)}
-                  className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl outline-none text-sm text-slate-100"
-                  required
-                />
+                <label className="flex-1 flex items-center justify-between px-4 py-2.5 bg-slate-950 border border-slate-800 hover:border-indigo-500/40 rounded-xl cursor-pointer text-slate-400 hover:text-slate-350 text-sm transition">
+                  <span className="truncate">{attachedFileName || "Seleccionar archivo del equipo (.pdf, .xlsx)..."}</span>
+                  <FileSpreadsheet className="w-5 h-5 text-indigo-400 shrink-0 ml-2" />
+                  <input
+                    type="file"
+                    accept=".pdf,.xlsx,.xls,.doc,.docx"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setAttachedFileName(file.name);
+                      }
+                    }}
+                    className="hidden"
+                    required={!attachedFileName}
+                  />
+                </label>
               </div>
-              <p className="text-[10px] text-slate-500">Este documento se publicará y sincronizará de forma transparente en la sección de Estados de Cuenta.</p>
+              <p className="text-[10px] text-slate-505">El documento se cargará desde tu equipo y se sincronizará automáticamente con Estados de Cuenta.</p>
             </div>
 
             {formError && (
